@@ -61,8 +61,9 @@ int main()
 	// 2.初始化连接，连接请求
 	if (connect(client, (SOCKADDR*)&addrAdmin, sizeof(addrAdmin)) == SOCKET_ERROR)
 	{
-		cout << "connect failed:" << WSAGetLastError() << endl;
+		printf("connect function failed with error: %ld\n", WSAGetLastError());
 		WSACleanup();
+		system("pause");
 		return -1;
 	}
 
