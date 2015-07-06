@@ -12,7 +12,6 @@
 #include <sstream>
 #include <atomic>
 #include <thread>
-// #include <mutex>
 
 // link with Ws2_32.lib
 #pragma comment (lib, "Ws2_32.lib")
@@ -20,11 +19,27 @@ using namespace std;
 
 typedef pair< sockaddr_in, unsigned int > AddrPkg;
 
-const int MAX_BUF_LENGTH    = 512;
-const int MAX_THREAD_NUM    = 5;
-const int MAX_BAKCLOG_NUM   = 5;
-const char DEFAULT_PORT[]   = "6666";
-const int  DEFAULT_PORT_INT = 6666;
+const int   MAX_BUF_LENGTH      = 512;
+const int   MAX_THREAD_NUM      = 5;
+const int   MAX_BAKCLOG_NUM     = 5;
+const char  DEFAULT_PORT[]      = "7777";
+const int   DEFAULT_PORT_INT    = 7777;
+const char  BROADCAST_PORT[]    = "7979";
+const int   BROADCAST_PORT_INT  = 7979;
+
+int LENGTH_FROM       = sizeof(SOCKADDR);
+const int LENGTH_TO   = sizeof(SOCKADDR);
+
+
+int bindSocket(sockaddr_in &bindAddr, SOCKET &_socket, const int &port)
+{
+    ZeroMemory(&bindAddr, sizeof(bindAddr));
+    bindAddr.sin_family = AF_INET;
+    bindAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    bindAddr.sin_port = htons(port);
+    _socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    return ::bind(_socket, (SOCKADDR*)&bindAddr, sizeof(bindAddr));
+}
 
 int getAddr(struct addrinfo *result, vector<AddrPkg> &addrList, vector<SOCKET> &socketList)
 {
@@ -82,51 +97,70 @@ __declspec(thread) int                  portClient;
 __declspec(thread) char                 ipStringBuffer[16];
 __declspec(thread) DWORD                ipBufferLength = 16;
 __declspec(thread) int                  len = sizeof(SOCKADDR);
-__declspec(thread) int                  cnt;
+__declspec(thread) int                  piResult;
 __declspec(thread) char                 buf[MAX_BUF_LENGTH];
 
 
-void runAdmin(SOCKET __server, const int& adminID)
+void runServerBroadcast(SOCKET __server, const int& serverID, 
+    const sockaddr_in& addrServer, const string& msg)
 {
-    string                cmd;
-    ostringstream        strout;        //字符串输出流对象
-    memset(buf, 0, sizeof(buf));
-    do
+    bool bOpt = true;
+    piResult = 0;
+    piResult = setsockopt(__server, SOL_SOCKET, SO_BROADCAST, (char*)&bOpt, sizeof(bOpt));
+    if (piResult == SOCKET_ERROR)
     {
-        // 4.等待客户机连接请,建立连接套接字
-        accSock = accept(__server, (SOCKADDR*)&addrClient, &len);
-        if (accSock == INVALID_SOCKET) {
-            printf("accept failed with error: %d\n", WSAGetLastError());
+        printf("setsockopt failed with error %d\n", WSAGetLastError());
+        system("pause");
+    }
+    ostringstream strout; strout.str("");
+    strout << msg << endl;
+    string ostr = strout.str();
+    while (1)
+    {
+        piResult = sendto(
+            __server, ostr.c_str(), ostr.size() + 1, 0,
+            (SOCKADDR*)&addrServer, LENGTH_TO
+            );
+        if (piResult == SOCKET_ERROR)
+        {
+            printf("sendto failed with error %d\n", WSAGetLastError());
             system("pause");
         }
-        if (accSock == INVALID_SOCKET) continue;
+        cout << "[Broadcast #" << serverID << "]: " << msg << endl;
+        Sleep(500);
+    }
+}
 
-        //客户机IP地址
-        inet_ntop(AF_INET, &addrClient.sin_addr, ipStringBuffer, ipBufferLength);
-
-        //客户机临时端口
-        portClient = htons(addrClient.sin_port);
-        cout << "[S" << adminID << "] accept client [";
-        cout << ipStringBuffer << ":" << portClient << "]" << endl;
-
-        // 5.接收服务请求,处理服务,发送服务响应
-        cnt = 0;
-        while (1)
+void runServerReceiver(SOCKET __server, const int& serverID)
+{
+    ostringstream strout; strout.str("");
+    memset(buf, 0, sizeof(buf));
+    while (1)
+    {
+        piResult = 0;
+        piResult = recvfrom(__server, buf, sizeof(buf), 0, (SOCKADDR*)&addrClient, &LENGTH_FROM);
+        if (piResult == SOCKET_ERROR)
         {
-            strout.str("");
-            recv(accSock, buf, sizeof(buf), 0);        //从客户机接受服务请求
-            cout << "[C" << adminID << "] " << buf << endl;
-            if (strcmp(buf, "quit") == 0) break;        //如果接受到quit则退出
-            strout << "echo #" << ++cnt;
-            strout << ": [" << buf << "].";
-            string ostr = strout.str();
-            send(accSock, ostr.c_str(), ostr.length() + 1, 0);        //向服务器发送服务响应
+            printf("recvfrom failed with error %d\n", WSAGetLastError());
+            system("pause");
         }
-
-        cout << "Input \"quit\" to shut down this thread, otherwise continue runing." << endl;
-        cin >> cmd;
-    } while (cmd != "quit");
-    closesocket(accSock);
+        // 客户机IP地址
+        inet_ntop(AF_INET, &addrClient.sin_addr, ipStringBuffer, ipBufferLength);
+        // 客户机临时端口
+        portClient = htons(addrClient.sin_port);
+        cout << "[S" << serverID << "] received message from client [";
+        cout << ipStringBuffer << ":" << portClient << "]" << endl;
+        // 接收服务请求,处理服务,发送服务响应
+        cout << "[C" << serverID << "] " << buf << endl;
+        if (strcmp(buf, "quit") == 0) break;        //如果接受到quit则退出
+        strout.str("");
+        strout << "echo: [" << buf << "].";
+        string ostr = strout.str();
+        sendto(
+            __server, ostr.c_str(), ostr.size() + 1, 0,
+            (SOCKADDR*)&addrClient, LENGTH_TO
+        );        //向服务器发送服务响应
+    }
 }
 
 int main()
@@ -138,13 +172,12 @@ int main()
     struct addrinfo *ptr = NULL;
     struct addrinfo hints;
 
-    SOCKET server;        // 服务器TCP套接字
-
-    // admin
-    sockaddr_in addrAdmin;
-    sockaddr_in bindAddr;
-    int         portAdmin = DEFAULT_PORT_INT;
-
+    // server
+    sockaddr_in addrServer;
+    sockaddr_in bindAddrBroadcast;
+    sockaddr_in bindAddrReceive;
+    SOCKET serverBroadcast;
+    SOCKET serverReceive;
 
     // Initialize Winsock
     iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -165,13 +198,10 @@ int main()
     hints.ai_flags = AI_PASSIVE;
 
     // 2.绑定关联地址和协议端口
-    ZeroMemory(&bindAddr, sizeof(bindAddr));
-    bindAddr.sin_family = AF_INET;        //使用TCP/IP协议
-    bindAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    bindAddr.sin_port = htons(portAdmin);        //服务器端口
-    server = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    ::bind(server, (SOCKADDR*)&bindAddr, sizeof(bindAddr));
+    
+    bindSocket(bindAddrReceive, serverReceive, DEFAULT_PORT_INT);
 
+    // get ip address
     char bufNodeName[128];
     memset(bufNodeName, 0, sizeof(bufNodeName));
     gethostname(bufNodeName, sizeof(bufNodeName));        //获取本机 (服务器) 主机名
@@ -187,49 +217,51 @@ int main()
 
     vector<AddrPkg> addrList;
     vector<SOCKET>  socketList;
-    int addrAdminCapability = getAddr(result, addrList, socketList);
-    if (addrAdminCapability == 0)
+    int addrServerCapability = getAddr(result, addrList, socketList);
+    if (addrServerCapability == 0)
     {
         printf("No accessible IP Address.\n");
         return 2;
     }
 
-    int addrAdminID = listAddr(addrList, addrAdminCapability);
-    addrAdmin       = addrList[addrAdminID].first;
-    server          = socketList[addrAdminID];    //Internet域.流式套接字TCP
-    string ipString = addr2String(addrAdmin);
+    int addrServerID    = listAddr(addrList, addrServerCapability);
+    string ipString = addr2String(addrServer);
     printf("\tIPv4 address %s\n", ipString.c_str());//服务器IP地址
-
-    addrAdmin.sin_family = AF_INET;
-    addrAdmin.sin_port = htons(portAdmin);
-
-    iResult = ::bind(server, (SOCKADDR*)&addrAdmin, sizeof(addrAdmin));
     freeaddrinfo(result);
 
-    // 3.监听外来连接
-    iResult = listen(server, MAX_BAKCLOG_NUM);
-    if (iResult == SOCKET_ERROR) {
-        printf("main listen failed with error: %d\n", WSAGetLastError());
-        system("pause");
-    }
-    cout << "server @[" << ipString << "] waiting for connection..." << endl;
+    // bindSocket(bindAddrBroadcast, serverBroadcast, BROADCAST_PORT_INT);
+    ZeroMemory(&bindAddrBroadcast, sizeof(bindAddrBroadcast));
+    bindAddrBroadcast.sin_family = AF_INET;
+    bindAddrBroadcast.sin_addr.s_addr = INADDR_BROADCAST;
+    bindAddrBroadcast.sin_port = htons(BROADCAST_PORT_INT);
+    serverBroadcast = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    ::bind(serverBroadcast, (SOCKADDR*)&bindAddrBroadcast, sizeof(addrServer));
 
+    addrServer.sin_addr.s_addr = INADDR_BROADCAST;
+    addrServer.sin_port = htons(BROADCAST_PORT_INT);
+
+
+    cout << "Start Broadcast." << endl;
+    std::thread t0(runServerBroadcast, serverBroadcast, 0, bindAddrBroadcast, ipString);
+    Sleep(100);
     // Multi-threading
-    const int _THREAD_NUM = MAX_THREAD_NUM;
+    const int _THREAD_NUM = 1; // MAX_THREAD_NUM;
     std::thread threads[_THREAD_NUM];
     cout << "Spawning " << _THREAD_NUM << " threads..." << endl;
     for (int i = 0; i < _THREAD_NUM; i++)
     {
-        threads[i] = std::thread(runAdmin, server, i + 1);
+        threads[i] = std::thread(runServerReceiver, serverReceive, i + 1);
     }
     cout << "Done spawning threads! Now wait for them to join..." << endl;
+    t0.join();
     for (auto& t : threads) { t.join(); }
-    std::cout << "All threads joined." << endl;
-    
-    // runAdmin(server);
+    cout << "All threads joined." << endl;
+
+    // runServer(server);
 
     // 6.关闭套接字
-    closesocket(server);
+    closesocket(serverReceive);
+    closesocket(serverBroadcast);
     WSACleanup();
     return 0;
 }
