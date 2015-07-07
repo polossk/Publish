@@ -24,8 +24,8 @@ using namespace std;
 const int   MAX_BUF_LENGTH      = 512;
 const int   MAX_THREAD_NUM      = 5;
 const int   MAX_BAKCLOG_NUM     = 5;
-const char  DEFAULT_PORT[]      = "7676";
-const int   DEFAULT_PORT_INT    = 7676;
+const char  DEFAULT_PORT[]      = "7777";
+const int   DEFAULT_PORT_INT    = 7777;
 const char  BROADCAST_PORT[]    = "7979";
 const int   BROADCAST_PORT_INT  = 7979;
 
@@ -49,6 +49,7 @@ inline string inputServerAddress()
 
 // client
 __declspec(thread) SOCKET               accSock; // 服务器连接套接字
+__declspec(thread) sockaddr_in          addrServer;
 __declspec(thread) sockaddr_in          addrClient;
 __declspec(thread) int                  portClient;
 __declspec(thread) char                 ipStringBuffer[16];
@@ -128,10 +129,37 @@ bool runClientListen(SOCKET __server, const int &serverID,
     return false;
 }
 
-void runClientSend(SOCKET __server, const int& serverID)
+void runClientSend(SOCKET __server, const int& serverID, sockaddr_in &addr)
 {
-    
+    string msg;
+    while (1)
+    {
+        piResult = 0;
+        cout << "[I] message: ";
+        getline(cin, msg);
+        piResult = sendto(__server, msg.c_str(), msg.size() + 1, 0, (SOCKADDR*)&addr, LENGTH_TO);
+        if (piResult == SOCKET_ERROR)
+        {
+            printf("sendto failed with error %d\n", WSAGetLastError());
+            system("pause");
+        }
+        if (msg == "quit") break;
+        piResult = recvfrom(__server, buf, sizeof(buf), 0, (SOCKADDR*)&addrServer, &LENGTH_FROM);
+        if (piResult == SOCKET_ERROR)
+        {
+            printf("recvfrom failed with error %d\n", WSAGetLastError());
+            system("pause");
+        }
+        cout << "[S] " << buf << endl;
+    }
 }
+
+inline string inputAdminAddress()
+{
+    string buf; cout << "[I] server: ";
+    cin >> buf; getchar(); return buf;
+}
+
 
 int main()
 {
@@ -152,17 +180,42 @@ int main()
         printf("WSAStartup failed: %d\n", iResult);
         return 1;
     }
-    buildBeforeBind(addrReceive, clientReceive, DEFAULT_PORT_INT, false);
-    buildBeforeBind(addrListen2, clientListen, BROADCAST_PORT_INT, false);
-    buildBeforeBind(addrListenFrom, clientListen, BROADCAST_PORT_INT, true);
 
-    iResult = ::bind(clientReceive, (SOCKADDR*)&addrReceive, sizeof(addrReceive));
-    if (iResult == SOCKET_ERROR)
+    // Receiving Socket
+    string strAdminAddr = inputAdminAddress();
+    ZeroMemory(&addrReceive, sizeof(addrReceive));
+    addrReceive.sin_family = AF_INET;
+    addrReceive.sin_port = htons(DEFAULT_PORT_INT);
+    iResult = inet_pton(AF_INET, strAdminAddr.c_str(), &addrReceive.sin_addr);
+    if (iResult != 1)
     {
-        printf("bind failed with error %d\n", WSAGetLastError());
+        printf("inet_pton clientReceive failed with error %d\n", WSAGetLastError());
+        system("pause");
+    }
+    
+    clientReceive = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    if (clientReceive == INVALID_SOCKET)
+    {
+        printf("socket clientReceive failed with error %d\n", WSAGetLastError());
         system("pause");
     }
 
+    
+
+    // Listening Socket
+    ZeroMemory(&addrListen2, sizeof(addrListen2));
+    addrListen2.sin_family = AF_INET;
+    addrListen2.sin_addr.s_addr = htonl(INADDR_ANY);
+    addrListen2.sin_port = htons(BROADCAST_PORT_INT);
+
+
+    ZeroMemory(&addrListenFrom, sizeof(addrListenFrom));
+    addrListenFrom.sin_family = AF_INET;
+    addrListenFrom.sin_addr.s_addr = htonl(INADDR_BROADCAST);
+    addrListenFrom.sin_port = htons(BROADCAST_PORT_INT);
+
+
+    clientListen = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     bool bOpt = true;
     iResult = setsockopt(clientListen, SOL_SOCKET, SO_BROADCAST, (char*)&bOpt, sizeof(bOpt));
     if (iResult == SOCKET_ERROR)
@@ -171,15 +224,18 @@ int main()
         system("pause");
     }
 
+    // bind address and socket
     iResult = ::bind(clientListen, (SOCKADDR*)&addrListen2, sizeof(addrListen2));
     if (iResult == SOCKET_ERROR)
     {
-        printf("bind failed with error %d\n", WSAGetLastError());
+        printf("bind clientListen failed with error %d\n", WSAGetLastError());
         system("pause");
     }
+
+
     // runClientListen(clientListen, 0, addrListenFrom, test);
-
-
+    runClientSend(clientReceive, 999, addrReceive);
+    /*
     std::future<bool> run = std::async(
         std::launch::async, runClientListen,
         clientListen, 0, addrListenFrom
@@ -204,23 +260,8 @@ int main()
         else
             cout << "Returned false, test failed." << endl;
     }
-
-
-    /*
-    // 2.发送服务请求、接收服务响应
-    while (1)
-    {
-        cout << "[I] message: ";
-        getline(cin, msg);
-        sendto(
-            client, msg.c_str(), msg.size() + 1, 0,
-            (SOCKADDR*)&addrServer, LENGTH_TO
-        );
-        if (msg == "quit") break;
-        recvfrom(client, buf, sizeof(buf), 0, (SOCKADDR*)&addrClient, &LENGTH_FROM);
-        cout << "[S] " << buf << endl;
-    }
     */
+    
 
     // 3.关闭套接字
     closesocket(clientReceive);

@@ -31,16 +31,6 @@ int LENGTH_FROM       = sizeof(SOCKADDR);
 const int LENGTH_TO   = sizeof(SOCKADDR);
 
 
-int bindSocket(sockaddr_in &bindAddr, SOCKET &_socket, const int &port)
-{
-    ZeroMemory(&bindAddr, sizeof(bindAddr));
-    bindAddr.sin_family = AF_INET;
-    bindAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    bindAddr.sin_port = htons(port);
-    _socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    return ::bind(_socket, (SOCKADDR*)&bindAddr, sizeof(bindAddr));
-}
-
 int getAddr(struct addrinfo *result, vector<AddrPkg> &addrList, vector<SOCKET> &socketList)
 {
     addrList.clear();
@@ -101,7 +91,7 @@ __declspec(thread) int                  piResult;
 __declspec(thread) char                 buf[MAX_BUF_LENGTH];
 
 
-void runServerBroadcast(SOCKET __server, const int& serverID, 
+void runServerBroadcast(SOCKET __server, const int& serverID,
     const sockaddr_in& addrServer, const string& msg)
 {
     bool bOpt = true;
@@ -153,8 +143,7 @@ void runServerReceiver(SOCKET __server, const int& serverID)
         // 接收服务请求,处理服务,发送服务响应
         cout << "[C" << serverID << "] " << buf << endl;
         if (strcmp(buf, "quit") == 0) break;        //如果接受到quit则退出
-        strout.str("");
-        strout << "echo: [" << buf << "].";
+        strout.str(""); strout << "echo: [" << buf << "].";
         string ostr = strout.str();
         sendto(
             __server, ostr.c_str(), ostr.size() + 1, 0,
@@ -173,7 +162,6 @@ int main()
     struct addrinfo hints;
 
     // server
-    sockaddr_in addrServer;
     sockaddr_in bindAddrBroadcast;
     sockaddr_in bindAddrReceive;
     SOCKET serverBroadcast;
@@ -193,13 +181,27 @@ int main()
     // which is passed to the getaddrinfo() function
     ZeroMemory(&hints, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_protocol = IPPROTO_TCP;
+    hints.ai_socktype = SOCK_DGRAM;
+    hints.ai_protocol = IPPROTO_UDP;
     hints.ai_flags = AI_PASSIVE;
 
-    // 2.绑定关联地址和协议端口
-    
-    bindSocket(bindAddrReceive, serverReceive, DEFAULT_PORT_INT);
+    // receive
+    ZeroMemory(&bindAddrReceive, sizeof(bindAddrReceive));
+    bindAddrReceive.sin_family = AF_INET;
+    bindAddrReceive.sin_addr.s_addr = htonl(INADDR_ANY);
+    bindAddrReceive.sin_port = htons(DEFAULT_PORT_INT);
+    serverReceive = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    ::bind(serverReceive, (SOCKADDR*)&bindAddrReceive, sizeof(bindAddrReceive));
+
+
+    // broadcast
+    ZeroMemory(&bindAddrBroadcast, sizeof(bindAddrBroadcast));
+    bindAddrBroadcast.sin_family = AF_INET;
+    bindAddrBroadcast.sin_addr.s_addr = htonl(INADDR_BROADCAST);
+    bindAddrBroadcast.sin_port = htons(BROADCAST_PORT_INT);
+    serverBroadcast = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    ::bind(serverBroadcast, (SOCKADDR*)&bindAddrBroadcast, sizeof(bindAddrBroadcast));
+
 
     // get ip address
     char bufNodeName[128];
@@ -225,24 +227,14 @@ int main()
     }
 
     int addrServerID    = listAddr(addrList, addrServerCapability);
-    string ipString = addr2String(addrServer);
+    string ipString = addr2String(addrList[addrServerID].first);
     printf("\tIPv4 address %s\n", ipString.c_str());//服务器IP地址
     freeaddrinfo(result);
 
-    // bindSocket(bindAddrBroadcast, serverBroadcast, BROADCAST_PORT_INT);
-    ZeroMemory(&bindAddrBroadcast, sizeof(bindAddrBroadcast));
-    bindAddrBroadcast.sin_family = AF_INET;
-    bindAddrBroadcast.sin_addr.s_addr = INADDR_BROADCAST;
-    bindAddrBroadcast.sin_port = htons(BROADCAST_PORT_INT);
-    serverBroadcast = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    ::bind(serverBroadcast, (SOCKADDR*)&bindAddrBroadcast, sizeof(addrServer));
-
-    addrServer.sin_addr.s_addr = INADDR_BROADCAST;
-    addrServer.sin_port = htons(BROADCAST_PORT_INT);
-
+    
 
     cout << "Start Broadcast." << endl;
-    std::thread t0(runServerBroadcast, serverBroadcast, 0, bindAddrBroadcast, ipString);
+    // std::thread t0(runServerBroadcast, serverBroadcast, 0, bindAddrBroadcast, ipString);
     Sleep(100);
     // Multi-threading
     const int _THREAD_NUM = 1; // MAX_THREAD_NUM;
@@ -253,7 +245,7 @@ int main()
         threads[i] = std::thread(runServerReceiver, serverReceive, i + 1);
     }
     cout << "Done spawning threads! Now wait for them to join..." << endl;
-    t0.join();
+    // t0.join();
     for (auto& t : threads) { t.join(); }
     cout << "All threads joined." << endl;
 
