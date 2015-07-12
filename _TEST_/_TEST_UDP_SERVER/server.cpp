@@ -12,6 +12,7 @@
 #include <sstream>
 #include <atomic>
 #include <thread>
+// #include <mutex>
 
 // link with Ws2_32.lib
 #pragma comment (lib, "Ws2_32.lib")
@@ -23,12 +24,9 @@ const int   MAX_BUF_LENGTH      = 512;
 const int   MAX_THREAD_NUM      = 5;
 const char  DEFAULT_PORT[]      = "7777";
 const int   DEFAULT_PORT_INT    = 7777;
-const char  BROADCAST_PORT[]    = "7979";
-const int   BROADCAST_PORT_INT  = 7979;
 
 int LENGTH_FROM       = sizeof(SOCKADDR);
 const int LENGTH_TO   = sizeof(SOCKADDR);
-
 
 int getAddr(struct addrinfo *result, vector<AddrPkg> &addrList, vector<SOCKET> &socketList)
 {
@@ -39,11 +37,11 @@ int getAddr(struct addrinfo *result, vector<AddrPkg> &addrList, vector<SOCKET> &
         if (ptr->ai_family == AF_INET)
         {
             addrList.push_back(
-                make_pair(*(sockaddr_in *) ptr->ai_addr, ptr->ai_addrlen)
-            );
+                make_pair(*(sockaddr_in *)ptr->ai_addr, ptr->ai_addrlen)
+                );
             socketList.push_back(
                 socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol)
-            );
+                );
         }
     }
     return addrList.size();
@@ -79,6 +77,7 @@ int listAddr(vector<AddrPkg> &addrList, const int &capability)
     return -1;
 }
 
+
 // client
 __declspec(thread) SOCKET               accSock; // 服务器连接套接字
 __declspec(thread) sockaddr_in          addrClient;
@@ -89,36 +88,6 @@ __declspec(thread) int                  len = sizeof(SOCKADDR);
 __declspec(thread) int                  piResult;
 __declspec(thread) char                 buf[MAX_BUF_LENGTH];
 
-
-void runServerBroadcast(SOCKET __server, const int& serverID,
-    const sockaddr_in& addrServer, const string& msg)
-{
-    bool bOpt = true;
-    piResult = 0;
-    piResult = setsockopt(__server, SOL_SOCKET, SO_BROADCAST, (char*)&bOpt, sizeof(bOpt));
-    if (piResult == SOCKET_ERROR)
-    {
-        printf("setsockopt failed with error %d\n", WSAGetLastError());
-        system("pause");
-    }
-    ostringstream strout; strout.str("");
-    strout << msg << endl;
-    string ostr = strout.str();
-    while (1)
-    {
-        piResult = sendto(
-            __server, ostr.c_str(), ostr.size() + 1, 0,
-            (SOCKADDR*)&addrServer, LENGTH_TO
-            );
-        if (piResult == SOCKET_ERROR)
-        {
-            printf("sendto failed with error %d\n", WSAGetLastError());
-            system("pause");
-        }
-        cout << "[Broadcast #" << serverID << "]: " << msg << endl;
-        Sleep(500);
-    }
-}
 
 void runServerReceiver(SOCKET __server, const int& serverID)
 {
@@ -147,25 +116,27 @@ void runServerReceiver(SOCKET __server, const int& serverID)
         sendto(
             __server, ostr.c_str(), ostr.size() + 1, 0,
             (SOCKADDR*)&addrClient, LENGTH_TO
-        );        //向服务器发送服务响应
+            );        //向服务器发送服务响应
     }
 }
+
+
 
 int main()
 {
     WSADATA wsaData;
     int iResult;
-
     struct addrinfo *result = NULL;
     struct addrinfo *ptr = NULL;
     struct addrinfo hints;
 
-    // server
-    sockaddr_in bindAddrBroadcast;
-    sockaddr_in bindAddrReceive;
+    SOCKET server;
+
+    // server port
+    sockaddr_in addrServer;
     sockaddr_in bindAddr;
-    SOCKET serverBroadcast;
-    SOCKET serverReceive;
+    int         portServer = DEFAULT_PORT_INT;
+
 
     // Initialize Winsock
     iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -175,10 +146,7 @@ int main()
         return 1;
     }
 
-    // 1.创建服务器TCP套接字
-    //--------------------------------
-    // Setup the hints address info structure
-    // which is passed to the getaddrinfo() function
+    // set up udp
     ZeroMemory(&hints, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_DGRAM;
@@ -186,19 +154,9 @@ int main()
     hints.ai_flags = AI_PASSIVE;
 
 
-    // broadcast
-    ZeroMemory(&bindAddrBroadcast, sizeof(bindAddrBroadcast));
-    bindAddrBroadcast.sin_family = AF_INET;
-    bindAddrBroadcast.sin_addr.s_addr = htonl(INADDR_BROADCAST);
-    bindAddrBroadcast.sin_port = htons(BROADCAST_PORT_INT);
-    serverBroadcast = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    ::bind(serverBroadcast, (SOCKADDR*)&bindAddrBroadcast, sizeof(bindAddrBroadcast));
-
-
-    // get ip address
     char bufNodeName[128];
     memset(bufNodeName, 0, sizeof(bufNodeName));
-    gethostname(bufNodeName, sizeof(bufNodeName));        //获取本机 (服务器) 主机名
+    gethostname(bufNodeName, sizeof(bufNodeName));
     cout << bufNodeName << endl;
 
     iResult = getaddrinfo(bufNodeName, DEFAULT_PORT, &hints, &result);
@@ -219,43 +177,35 @@ int main()
     }
 
     int addrServerID = listAddr(addrList, addrServerCapability);
-    bindAddrReceive = addrList[addrServerID].first;
+    addrServer = addrList[addrServerID].first;
     // server = socketList[addrServerID];    //Internet域.流式套接字TCP
-    string ipString = addr2String(bindAddrReceive);
+    string ipString = addr2String(addrServer);
     printf("\tIPv4 address %s\n", ipString.c_str());//服务器IP地址
 
 
     ZeroMemory(&bindAddr, sizeof(bindAddr));
-    bindAddr = bindAddrReceive;
-    bindAddr.sin_port = htons(DEFAULT_PORT_INT);
-    serverReceive = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    ::bind(serverReceive, (SOCKADDR*)&bindAddr, sizeof(bindAddr));
+    bindAddr = addrServer;
+    bindAddr.sin_port = htons(portServer);
+    server = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    ::bind(server, (SOCKADDR*)&bindAddr, sizeof(bindAddr));
     freeaddrinfo(result);
 
-
-
-
-    cout << "Start Broadcast." << endl;
-    std::thread t0(runServerBroadcast, serverBroadcast, 0, bindAddrBroadcast, ipString);
-    Sleep(100);
-    // Multi-threading
+    // single server
+    // runServerReceiver(server, 9999);
+    // multi servers
     const int _THREAD_NUM = 1; // MAX_THREAD_NUM;
     std::thread threads[_THREAD_NUM];
     cout << "Spawning " << _THREAD_NUM << " threads..." << endl;
     for (int i = 0; i < _THREAD_NUM; i++)
     {
-        threads[i] = std::thread(runServerReceiver, serverReceive, i + 1);
+        threads[i] = std::thread(runServerReceiver, server, i + 1);
     }
     cout << "Done spawning threads! Now wait for them to join..." << endl;
     // t0.join();
     for (auto& t : threads) { t.join(); }
     cout << "All threads joined." << endl;
 
-    // runServer(server);
-
-    // 6.关闭套接字
-    closesocket(serverReceive);
-    closesocket(serverBroadcast);
+    closesocket(server);
     WSACleanup();
     return 0;
 }

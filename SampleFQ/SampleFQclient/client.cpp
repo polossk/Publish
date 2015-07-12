@@ -23,7 +23,6 @@ using namespace std;
 
 const int   MAX_BUF_LENGTH      = 512;
 const int   MAX_THREAD_NUM      = 5;
-const int   MAX_BAKCLOG_NUM     = 5;
 const char  DEFAULT_PORT[]      = "7777";
 const int   DEFAULT_PORT_INT    = 7777;
 const char  BROADCAST_PORT[]    = "7979";
@@ -154,12 +153,6 @@ void runClientSend(SOCKET __server, const int& serverID, sockaddr_in &addr)
     }
 }
 
-inline string inputAdminAddress()
-{
-    string buf; cout << "[I] server: ";
-    cin >> buf; getchar(); return buf;
-}
-
 
 int main()
 {
@@ -182,7 +175,7 @@ int main()
     }
 
     // Receiving Socket
-    string strAdminAddr = inputAdminAddress();
+    string strAdminAddr = inputServerAddress();
     ZeroMemory(&addrReceive, sizeof(addrReceive));
     addrReceive.sin_family = AF_INET;
     addrReceive.sin_port = htons(DEFAULT_PORT_INT);
@@ -233,8 +226,8 @@ int main()
     }
 
 
-    // runClientListen(clientListen, 0, addrListenFrom, test);
-    runClientSend(clientReceive, 999, addrReceive);
+    runClientListen(clientListen, 0, addrListenFrom);
+    // runClientSend(clientReceive, 999, addrReceive);
     /*
     std::future<bool> run = std::async(
         std::launch::async, runClientListen,
