@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "_TEST_UDP_BROADCAST_SERVER", "_TEST_UDP_BROADCAST_SERVER\_TEST_UDP_BROADCAST_SERVER.csproj", "{EBDEC5EE-2C81-4FF0-AA4E-E59CC944AE70}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "admin", "admin\admin.csproj", "{4E5E1254-E91B-444C-874C-AAEA903B7886}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{EBDEC5EE-2C81-4FF0-AA4E-E59CC944AE70}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EBDEC5EE-2C81-4FF0-AA4E-E59CC944AE70}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EBDEC5EE-2C81-4FF0-AA4E-E59CC944AE70}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E5E1254-E91B-444C-874C-AAEA903B7886}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E5E1254-E91B-444C-874C-AAEA903B7886}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E5E1254-E91B-444C-874C-AAEA903B7886}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E5E1254-E91B-444C-874C-AAEA903B7886}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
