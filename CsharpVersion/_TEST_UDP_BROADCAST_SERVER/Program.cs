@@ -14,6 +14,25 @@ namespace _TEST_UDP_BROADCAST_SERVER
         
         static void Main(string[] args)
         {
+            string key = Global.getInitVector(16);
+            string iv = Global.getInitVector(8);
+            string s = "hello! 中文测试，手持两把锟斤拷，口中直呼烫烫烫。";
+            Console.WriteLine("[{0}]", s);
+            string d = "";
+            byte[] sBytes = Encoding.Unicode.GetBytes(s);
+            byte[] dBytes = Global.AESEncrypt(sBytes, key, iv);
+            d = Convert.ToBase64String(dBytes, 0, dBytes.Length);
+            Console.WriteLine("[{0}]", d);
+
+            byte[] eBytes = Global.AESDecrypt(dBytes, key, iv);
+            string e = UnicodeEncoding.Unicode.GetString(eBytes);
+            Console.WriteLine("[{0}]", e);
+            while (true)
+            {
+                ;
+            }
+
+            /*
             List<string> addList = new List<string>();
             addList = ShowIPAddress();
             Console.WriteLine("IP List:");
@@ -48,6 +67,7 @@ namespace _TEST_UDP_BROADCAST_SERVER
                 client.Send(buf, buf.Length, endpoint);
                 Thread.Sleep(1000);
             }
+            */
         }
 
         static void RecvThread()

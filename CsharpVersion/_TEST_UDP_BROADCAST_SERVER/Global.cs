@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
 
-namespace admin
+namespace _TEST_UDP_BROADCAST_SERVER
 {
     /// <summary>
     /// 全局变量和全局工具性函数

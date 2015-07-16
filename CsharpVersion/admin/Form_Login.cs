@@ -16,25 +16,39 @@ namespace admin
     public partial class Form_Login : Form
     {
         UserSet users;
-        string rtPath;
+        string rtUserPath;
         public Form_Login()
         {
             InitializeComponent();
         }
+        /// <summary>
+        /// 运行时预加载项
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Form_Login_Load(object sender, EventArgs e)
         {
-            rtPath = System.AppDomain.CurrentDomain.SetupInformation.ApplicationBase
+            rtUserPath = System.AppDomain.CurrentDomain.SetupInformation.ApplicationBase
                 + "uesrs.dat";
-            FileInfo fi = new FileInfo(rtPath);
+            FileInfo fi = new FileInfo(rtUserPath);
             if (fi.Exists)
-                loadUsersData(rtPath);
+                loadUsersData(rtUserPath);
             else
             {
                 FileStream fs = fi.Create();
                 fs.Close();
                 users = new UserSet();
-                saveUsersData(rtPath);
+                saveUsersData(rtUserPath);
             }
+        }
+        /// <summary>
+        /// 关闭窗口时保存数据
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Form_Login_FormClosing(object sender, System.Windows.Forms.FormClosingEventArgs e)
+        {
+            saveUsersData(rtUserPath);
         }
         /// <summary>
         /// 从文件读取当前的账户信息
@@ -43,9 +57,15 @@ namespace admin
         private void loadUsersData(string path)
         {
             FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            BinaryReader rd = new BinaryReader(fileStream);
+            rd.BaseStream.Seek(0, SeekOrigin.Begin);
+            byte[] cipher = rd.ReadBytes((int)rd.BaseStream.Length);
+            string key = Global.ReadKey4Registry("Encrypt", "SecretKey");
+            string iv = Global.ReadKey4Registry("Encrypt", "InitVector");
+            byte[] raw = Global.AESDecrypt(cipher, key, iv);
+            MemoryStream buf = new MemoryStream(raw);
             BinaryFormatter bf = new BinaryFormatter();
-            // 将 uesrs.dat 的文件流反序列化为 UserSet
-            users = bf.Deserialize(fileStream) as UserSet;
+            users = bf.Deserialize(buf) as UserSet;
             // 释放文件流资源
             fileStream.Flush();
             fileStream.Close();
@@ -59,10 +79,20 @@ namespace admin
         {
             FileStream fileStream = new FileStream(path, FileMode.Create);
             BinaryFormatter bf = new BinaryFormatter();
-            bf.Serialize(fileStream, users);
+            MemoryStream buf = new MemoryStream();
+            bf.Serialize(buf, users);
+            byte[] serBytes = buf.ToArray();
+            buf.Close();
+            buf.Dispose();
+            string key = Global.getInitVector(16);
+            string iv = Global.getInitVector(8);
+            byte[] cipher = Global.AESEncrypt(serBytes, key, iv);
+            fileStream.Write(cipher, 0, cipher.Length);
             fileStream.Flush();
             fileStream.Close();
             fileStream.Dispose();
+            Global.AddKey2Registry("Encrypt", "SecretKey", key);
+            Global.AddKey2Registry("Encrypt", "InitVector", iv);
         }
         /// <summary>
         /// 用户登录操作
@@ -72,7 +102,8 @@ namespace admin
         private void button_Login_Click(object sender, EventArgs e)
         {
             var uac = textBox_UesrAccount.Text;
-            var upw = Global.md5Encrypt(textBox_UserPW.Text);
+            var upw = textBox_UserPW.Text;
+            textBox_UserPW.Text = "";
             // 空输入
             if (uac.Length == 0)
             {
@@ -84,6 +115,7 @@ namespace admin
                 MessageBox.Show("密码不能为空！", "输入错误", MessageBoxButtons.OK);
                 return;
             }
+            upw = Global.md5Encrypt(upw);
             int idx = users.find(uac);
             // 用户不存在
             if (idx == -1)
@@ -120,8 +152,10 @@ namespace admin
         /// <param name="e">环境变量</param>
         private void button_Reg_Click(object sender, EventArgs e)
         {
-            var uac = textBox_UesrAccount.Text;
-            var upw = Global.md5Encrypt(textBox_UserPW.Text);
+            var uac = textBox_Reg_Account.Text;
+            var upw = textBox_Reg_pwRaw.Text;
+            var ucl = textBox_Reg_Name.Text;
+            textBox_Reg_pwRaw.Text = "";
             // 空输入
             if (uac.Length == 0)
             {
@@ -133,6 +167,17 @@ namespace admin
                 MessageBox.Show("密码不能为空！", "输入错误", MessageBoxButtons.OK);
                 return;
             }
+            if (ucl.Length == 0)
+            {
+                MessageBox.Show("昵称不能为空！", "输入错误", MessageBoxButtons.OK);
+                return;
+            }
+            if (upw.Length < 4)
+            {
+                MessageBox.Show("密码不能短于4位！", "输入错误", MessageBoxButtons.OK);
+                return;
+            }
+            upw = Global.md5Encrypt(upw);
             int idx = users.find(uac);
             // 用户已经存在
             if (idx >= 0)
@@ -142,14 +187,46 @@ namespace admin
                 return;
             }
             // 正常注册流程
-
-            // 保存新的注册信息
-            saveUsersData(rtPath);
+            int uid = users.getNewUID();
+            bool isAdmin = checkBox_Reg_isAdmin.Checked;
+            User one = new User(uid, uac, ucl, upw, isAdmin);
+            bool success = users.addUser(one);
+            if (success)
+            {
+                MessageBox.Show("用户[" + uac + "]注册成功。\n请登录。", "注册成功", MessageBoxButtons.OK);
+                // 保存新的注册信息
+                saveUsersData(rtUserPath);
+                return;
+            }
+            else
+            {
+                MessageBox.Show("注册出现意外的失败，请更换用户名重试。", "注册失败", MessageBoxButtons.OK);
+                return;
+            }
         }
-        void Form_Login_KeyDown(object sender, KeyEventArgs e)
+
+        private void button_Exit_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        void Form_Login_KeyDown(object sender, System.Windows.Forms.KeyEventArgs e)
         {
             if (e.KeyData == Keys.Enter)
-                this.button_Login.PerformClick();
+            {
+                int idx = this.tabControl1.SelectedIndex;
+                switch (idx)
+                {
+                    case 0: this.button_Login.PerformClick(); break;
+                    case 1: this.button_Reg.PerformClick(); break;
+                    default: break;
+                }
+            }
+        }
+
+        private void button_Exit_Copy_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }
