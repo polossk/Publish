@@ -52,7 +52,8 @@ namespace admin
         public static string getInitVector(int n)
         {
             StringBuilder buf = new StringBuilder();
-            Random rnd = new Random();
+            var guid = new Guid();
+            Random rnd = new Random(guid.GetHashCode());
             for (int i = 0; i < n; i++)
             {
                 buf.Append(arrChar[rnd.Next(0, arrChar.Length)].ToString());
