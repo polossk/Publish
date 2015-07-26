@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
-
-namespace _TEST_CONSOLE_TCP_CLIENT
+namespace Universal.Net
 {
-    class UDPMessage
+    public class UDPMessage
     {
         public static int DEFAULT_BROADCAST_PORT = 57788;
         public static string PUBLIC_VERIFICATION = "~publish-server~";
@@ -23,7 +23,7 @@ namespace _TEST_CONSOLE_TCP_CLIENT
             while (!_shouldStopBroadcast)
             {
                 DateTime now = DateTime.Now;
-                Console.WriteLine("{0} [host {1}]: ~broadcasting [{2}]", now, threadID, PUBLIC_VERIFICATION);
+                // Console.WriteLine("{0} [host {1}]: ~broadcasting [{2}]", now, threadID, PUBLIC_VERIFICATION);
                 bcHost.Send(buf, buf.Length, bcTarget);
                 Thread.Sleep(500);
             }

@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // 有关程序集的常规信息通过以下
 // 特性集控制。更改这些特性值可修改
 // 与程序集关联的信息。
-[assembly: AssemblyTitle("_TEST_UDP_BROADCAST_SERVER")]
+[assembly: AssemblyTitle("Universal.Net.UDPMessage.dll")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("_TEST_UDP_BROADCAST_SERVER")]
+[assembly: AssemblyCompany("Nano Ware")]
+[assembly: AssemblyProduct("Universal.Net.UDPMessage.dll")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // 如果此项目向 COM 公开，则下列 GUID 用于类型库的 ID
-[assembly: Guid("f98fe58e-88ca-4b10-99c2-620b88ea4213")]
+[assembly: Guid("3b465fd0-f3c2-4663-8ca7-c76b9a20339e")]
 
 // 程序集的版本信息由下面四个值组成: 
 //

@@ -23,7 +23,7 @@ namespace _TEST_CONSOLE_NETWORKS_CLIENT
             while (!_shouldStopBroadcast)
             {
                 DateTime now = DateTime.Now;
-                Console.WriteLine("{0} [host {1}]: ~broadcasting [{2}]", now, threadID, PUBLIC_VERIFICATION);
+                // Console.WriteLine("{0} [host {1}]: ~broadcasting [{2}]", now, threadID, PUBLIC_VERIFICATION);
                 bcHost.Send(buf, buf.Length, bcTarget);
                 Thread.Sleep(500);
             }
@@ -36,30 +36,26 @@ namespace _TEST_CONSOLE_NETWORKS_CLIENT
 
         public void OnListenBroadcast(int threadID, out IPAddress serverIP)
         {
-            using (UdpClient client = new UdpClient(new IPEndPoint(IPAddress.Any, DEFAULT_BROADCAST_PORT)))
+            UdpClient client = new UdpClient(new IPEndPoint(IPAddress.Any, DEFAULT_BROADCAST_PORT));
+            IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, 0);
+            int testCnt = 0;
+            while (true)
             {
-                IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, 0);
-                int testCnt = 0;
-                while (true)
+                byte[] buf = client.Receive(ref endpoint);
+                string msg = Encoding.Unicode.GetString(buf);
+                if (msg != PUBLIC_VERIFICATION) continue;
+                else testCnt++;
+                DateTime now = DateTime.Now;
+                Console.WriteLine("{0} [client {1}]: receive message from [{2}:{3}]",
+                    now, threadID, endpoint.Address.ToString(), endpoint.Port.ToString());
+                Console.WriteLine("{0} [client {1}]: receive message [{2}]",
+                    now, threadID, msg);
+                if (testCnt == 5)
                 {
-                    byte[] buf = client.Receive(ref endpoint);
-                    string msg = Encoding.Unicode.GetString(buf);
-                    if (msg != PUBLIC_VERIFICATION) continue;
-                    else testCnt++;
-                    DateTime now = DateTime.Now;
-                    Console.WriteLine("{0} [client {1}]: receive message from [{2}:{3}]",
-                        now, threadID, endpoint.Address.ToString(), endpoint.Port.ToString());
-                    Console.WriteLine("{0} [client {1}]: receive message [{2}]",
-                        now, threadID, msg);
-                    if (testCnt == 5)
-                    {
-                        serverIP = endpoint.Address;
-                        break;
-                    }
+                    serverIP = endpoint.Address;
+                    return;
                 }
             }
-            Console.WriteLine("{0} [client {1}]: Success deceted server IP.",
-                        DateTime.Now, threadID);
         }
 
     }

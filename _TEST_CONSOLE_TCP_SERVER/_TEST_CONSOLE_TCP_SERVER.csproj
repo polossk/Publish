@@ -7,8 +7,8 @@
     <ProjectGuid>{549CF825-111E-4230-8165-4D67D0104802}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>_＿TEST_CONSOLE_TCP_SERVER</RootNamespace>
-    <AssemblyName>_＿TEST_CONSOLE_TCP_SERVER</AssemblyName>
+    <RootNamespace>_TEST_CONSOLE_TCP_SERVER</RootNamespace>
+    <AssemblyName>_TEST_CONSOLE_TCP_SERVER</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -43,9 +43,20 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ToBytes.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Universal.Net.TCPMessage\Universal.Net.TCPMessage.csproj">
+      <Project>{8f6ca815-0397-4065-815b-556dca8f75ff}</Project>
+      <Name>Universal.Net.TCPMessage</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Universal.Net.UDPMessage\Universal.Net.UDPMessage.csproj">
+      <Project>{3526eba4-a535-4290-ac7e-8f6de5bdf2fe}</Project>
+      <Name>Universal.Net.UDPMessage</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
