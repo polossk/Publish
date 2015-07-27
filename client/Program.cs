@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace PublishServer
+namespace PublishClient
 {
     static class Program
     {
@@ -16,12 +16,7 @@ namespace PublishServer
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Form_Login login = new Form_Login();
-            login.ShowDialog();
-            if (login.DialogResult == DialogResult.OK)
-            {
-                Application.Run(new Form_Main());
-            }
+            Application.Run(new Form_Connect());
         }
     }
 }

@@ -10,13 +10,13 @@ using System.Windows.Forms;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Collections;
-using Universal.Global;
 
-namespace PublishServer
+
+namespace PublishClient
 {
     public partial class Form_Login : Form
     {
-        // 用户信息
+        /*
         UserSet users;
         string rtUserPath;
         public Form_Login()
@@ -62,9 +62,9 @@ namespace PublishServer
             BinaryReader rd = new BinaryReader(fileStream);
             rd.BaseStream.Seek(0, SeekOrigin.Begin);
             byte[] cipher = rd.ReadBytes((int)rd.BaseStream.Length);
-            string key = Registry.ReadKey4Registry("Encrypt", "SecretKey");
-            string iv = Registry.ReadKey4Registry("Encrypt", "InitVector");
-            byte[] raw = Cipher.AESDecrypt(cipher, key, iv);
+            string key = Global.ReadKey4Registry("Encrypt", "SecretKey");
+            string iv = Global.ReadKey4Registry("Encrypt", "InitVector");
+            byte[] raw = Global.AESDecrypt(cipher, key, iv);
             MemoryStream buf = new MemoryStream(raw);
             BinaryFormatter bf = new BinaryFormatter();
             users = bf.Deserialize(buf) as UserSet;
@@ -86,16 +86,16 @@ namespace PublishServer
             byte[] serBytes = buf.ToArray();
             buf.Close();
             buf.Dispose();
-            string longkey = Cipher.getInitVector(24);
+            string longkey = Global.getInitVector(24);
             string key = longkey.Substring(0, 16);
             string iv = longkey.Substring(16, 8);
-            byte[] cipher = Cipher.AESEncrypt(serBytes, key, iv);
+            byte[] cipher = Global.AESEncrypt(serBytes, key, iv);
             fileStream.Write(cipher, 0, cipher.Length);
             fileStream.Flush();
             fileStream.Close();
             fileStream.Dispose();
-            Registry.AddKey2Registry("Encrypt", "SecretKey", key);
-            Registry.AddKey2Registry("Encrypt", "InitVector", iv);
+            Global.AddKey2Registry("Encrypt", "SecretKey", key);
+            Global.AddKey2Registry("Encrypt", "InitVector", iv);
         }
         /// <summary>
         /// 用户登录操作
@@ -118,7 +118,7 @@ namespace PublishServer
                 MessageBox.Show("密码不能为空！", "输入错误", MessageBoxButtons.OK);
                 return;
             }
-            upw = Cipher.md5Encrypt(upw);
+            upw = Global.md5Encrypt(upw);
             int idx = users.find(uac);
             // 用户不存在
             if (idx == -1)
@@ -145,8 +145,7 @@ namespace PublishServer
             {
                 string msg = "用户[" + uac + "]是管理员！登录成功。正在初始化数据，请稍等。";
                 MessageBox.Show(msg, "登陆成功", MessageBoxButtons.OK);
-                this.DialogResult = DialogResult.OK;
-                this.Close();
+                return;
             }
         }
         /// <summary>
@@ -181,7 +180,7 @@ namespace PublishServer
                 MessageBox.Show("密码不能短于4位！", "输入错误", MessageBoxButtons.OK);
                 return;
             }
-            upw = Cipher.md5Encrypt(upw);
+            upw = Global.md5Encrypt(upw);
             int idx = users.find(uac);
             // 用户已经存在
             if (idx >= 0)
@@ -232,5 +231,6 @@ namespace PublishServer
         {
             this.Close();
         }
+         */
     }
 }

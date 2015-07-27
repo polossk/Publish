@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // 有关程序集的常规信息通过以下
 // 特性集控制。更改这些特性值可修改
 // 与程序集关联的信息。
-[assembly: AssemblyTitle("_TEST_CONSOLE_NETWORKS_ADMIN")]
+[assembly: AssemblyTitle("Universal.Global.Global.dll")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("_TEST_CONSOLE_NETWORKS_ADMIN")]
+[assembly: AssemblyProduct("Universal.Global.Global.dll")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // 如果此项目向 COM 公开，则下列 GUID 用于类型库的 ID
-[assembly: Guid("c02eb4b8-3264-4fd0-9133-5d7f3260f1eb")]
+[assembly: Guid("e027ed1e-96fb-4fad-afb1-d24c0238c65d")]
 
 // 程序集的版本信息由下面四个值组成: 
 //

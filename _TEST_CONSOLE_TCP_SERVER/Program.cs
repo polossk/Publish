@@ -27,6 +27,7 @@ namespace _TEST_CONSOLE_TCP_SERVER
                     {
                         string q, a;
                         buf.Read(out q);
+                        string[] result = q.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                         a = q.ToUpper();
                         buf.Write(a);
                         DateTime now = DateTime.Now;
@@ -35,17 +36,17 @@ namespace _TEST_CONSOLE_TCP_SERVER
                             now, threadID, where.Address.ToString(), where.Port.ToString());
                         Console.WriteLine("{0} [host {1}]: receive message [{2}]",
                             now, threadID, q);
-                    }
-                    catch (Exception ex)
-                    {
+                        foreach (string item in result)
+                            Console.WriteLine("{0} [host {1}]: receive message [{2}]",
+                                now, threadID, item);
+                        Console.WriteLine();
+                    } catch (Exception ex) {
                         Type type = ex.GetType();
                         if (type == typeof(TimeoutException))
                         {   // 超时异常，不中断连接
                             Console.WriteLine("{0} [host {1}]: 数据超时失败！",
                             DateTime.Now, threadID);
-                        }
-                        else
-                        {
+                        } else {
                             // 仍旧抛出异常，中断连接
                             Console.WriteLine("{0} [host {1}]: 中断连接异常原因：{2}！",
                             DateTime.Now, threadID, type.Name);
@@ -63,7 +64,7 @@ namespace _TEST_CONSOLE_TCP_SERVER
         {
             NotStatic __temp_not_static__ = new NotStatic();
             // 准备 TCP 连接
-            TcpListenerP mainServer = new TcpListenerP(new IPEndPoint(IPAddress.Any, 58888));
+            TcpListenerP mainServer = new TcpListenerP(new IPEndPoint(IPAddress.Any, 56666));
             mainServer.OnThreadTaskRequest += new TcpListenerP.ThreadTaskRequest(__temp_not_static__.OnListen);
             
             // 准备 UDP 广播，广播服务器的IP地址

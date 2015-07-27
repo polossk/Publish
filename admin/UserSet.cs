@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
+using Universal.Global;
 
-namespace admin
+namespace PublishServer
 {
     [Serializable]
     public class UserSet
@@ -13,15 +14,17 @@ namespace admin
         /// 所有用户的清单容器
         /// </summary>
         public List<User> userList { get; set; }
+
         /// <summary>
         /// 默认构造函数，默认添加管理员账号admin和操作员账号user
         /// </summary>
         public UserSet()
         {
             userList = new List<User>();
-            userList.Add(new User(0, "admin", "管理员", Global.md5Encrypt("admin"), true));
-            userList.Add(new User(1, "user", "操作员", Global.md5Encrypt("user")));
+            userList.Add(new User(0, "admin", "管理员", Cipher.md5Encrypt("admin"), true));
+            userList.Add(new User(1, "user", "操作员", Cipher.md5Encrypt("user")));
         }
+
         /// <summary>
         /// 根据账户名查找下标
         /// </summary>
@@ -29,13 +32,15 @@ namespace admin
         /// <returns>账户所在下标，若没有则返回-1</returns>
         public int find(string uac)
         {
+            int idx = -1;
             for (int i = 0; i < userList.Count; i++ )
             {
                 if (uac == userList[i].account)
-                    return i;
+                    { idx = i; break; }
                 else continue;
             }
-            return -1;
+            return idx;
+            
         }
         /// <summary>
         /// 尝试注册一个新用户
@@ -55,7 +60,8 @@ namespace admin
         /// <returns>UserID的值</returns>
         public int getNewUID()
         {
-            return userList[userList.Count - 1].userID + 1;
+            int uid = userList[userList.Count - 1].userID + 1;
+            return uid;
         }
     }
 }

@@ -28,7 +28,7 @@ namespace _TEST_CONSOLE_TCP_CLIENT
 
             // 建立 TCP 连接
             TcpClientP msgClient = new TcpClientP();
-            msgClient.Connect(serverIP, 58888);
+            msgClient.Connect(serverIP, 56666);
             
             // 开始字符串通信
             int threadID = 7777;

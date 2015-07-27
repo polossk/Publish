@@ -6,12 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
 
-namespace admin
+namespace Universal.Global
 {
-    /// <summary>
-    /// 全局变量和全局工具性函数
-    /// </summary>
-    public class Global
+    public class Cipher
     {
         /// <summary>
         /// 允许字符集
@@ -113,33 +110,6 @@ namespace admin
                     return raw;
                 }
             }
-        }
-        /// <summary>
-        /// 向注册表添加值
-        /// </summary>
-        /// <param name="address">键值地址</param>
-        /// <param name="name">键值名称</param>
-        /// <param name="value">键值</param>
-        public static void AddKey2Registry(string address, string name, string value)
-        {
-            Microsoft.Win32.RegistryKey key = Microsoft.Win32.Registry.CurrentUser;
-            Microsoft.Win32.RegistryKey NanoWare = key.CreateSubKey("SOFTWARE\\NanoWare");
-            Microsoft.Win32.RegistryKey Addr = NanoWare.CreateSubKey(address);
-            Addr.SetValue(name, value);
-        }
-        /// <summary>
-        /// 从注册表读取值
-        /// </summary>
-        /// <param name="address">键值地址</param>
-        /// <param name="name">键值名称</param>
-        /// <returns>键值</returns>
-        public static string ReadKey4Registry(string address, string name)
-        {
-            Microsoft.Win32.RegistryKey key = Microsoft.Win32.Registry.CurrentUser;
-            Microsoft.Win32.RegistryKey NanoWare = key.OpenSubKey("SOFTWARE\\NanoWare");
-            Microsoft.Win32.RegistryKey Addr = NanoWare.OpenSubKey(address);
-            string value = Addr.GetValue(name).ToString();
-            return value;
         }
     }
 }

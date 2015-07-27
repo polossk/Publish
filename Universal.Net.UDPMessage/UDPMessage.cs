@@ -10,7 +10,7 @@ namespace Universal.Net
 {
     public class UDPMessage
     {
-        public static int DEFAULT_BROADCAST_PORT = 57788;
+        public static int DEFAULT_BROADCAST_PORT = 57777;
         public static string PUBLIC_VERIFICATION = "~publish-server~";
         private volatile bool _shouldStopBroadcast;
 
@@ -32,6 +32,13 @@ namespace Universal.Net
         public void RequestStopBroadcast()
         {
             _shouldStopBroadcast = true;
+        }
+
+        public IPAddress OnListenBroadcast(int threadID)
+        {
+            IPAddress ret = IPAddress.Any;
+            OnListenBroadcast(threadID, out ret);
+            return ret;
         }
 
         public void OnListenBroadcast(int threadID, out IPAddress serverIP)
