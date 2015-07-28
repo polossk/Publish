@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 using Universal.Net;
+using Universal.Global;
 
 namespace _TEST_CONSOLE_TCP_CLIENT
 {
@@ -19,7 +20,14 @@ namespace _TEST_CONSOLE_TCP_CLIENT
             // 接收来自服务器的广播并解析其 IP 地址
             UDPMessage backgroundClient = new UDPMessage();
             Thread listenBroadcast = new Thread(
-                () => { backgroundClient.OnListenBroadcast(9999, out serverIP); }
+                () => { 
+                    backgroundClient.OnListenBroadcast(
+                        threadID: 9999, 
+                        port: Port.DEFAULT_BROADCAST_PORT,
+                        ver: VerMessage.PUBLIC_VERIFICATION, 
+                        serverIP: out serverIP
+                    ); 
+                }
             );
             listenBroadcast.Start();
             // 验证服务器之后关闭接听器

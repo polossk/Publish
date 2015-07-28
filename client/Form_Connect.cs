@@ -46,7 +46,15 @@ namespace PublishClient
             serverIP = IPAddress.Any;
             backgroundClient = new UDPMessage();
             listenBroadcast = new Thread(
-                () => { serverIP = backgroundClient.OnListenBroadcast(9999); }
+                () =>
+                {
+                    backgroundClient.OnListenBroadcast(
+                        threadID: 9999,
+                        port: Port.DEFAULT_BROADCAST_PORT,
+                        ver: VerMessage.PUBLIC_VERIFICATION,
+                        serverIP: out serverIP
+                    );
+                }
             );
             listenBroadcast.Start();
             Thread watcher = new Thread(WatchServerIP);
@@ -67,13 +75,19 @@ namespace PublishClient
         private void FindServer()
         {
             listenBroadcast.Join();
+            this.Text = "是否连接";
             this.label_Title.Text = "已经找到服务器。";
             this.label_ShowIP.Text = "服务器地址为：[" + serverIP.ToString() + "]";
             this.button_Launch.Enabled = true;
+            this.button_Exit.Enabled = true;
+        }
+
+        private void button_Launch_Click(object sender, EventArgs e)
+        {
+            Registry.AddKey2Registry("PublishClient", "ServerIP", serverIP.ToString());
+            this.DialogResult = DialogResult.OK;
         }
 
     }
-
-    
 
 }

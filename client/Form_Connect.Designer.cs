@@ -82,6 +82,7 @@
             this.button_Launch.TabIndex = 0;
             this.button_Launch.Text = "启动(&L)";
             this.button_Launch.UseVisualStyleBackColor = true;
+            this.button_Launch.Click += new System.EventHandler(this.button_Launch_Click);
             // 
             // Form_Connect
             // 

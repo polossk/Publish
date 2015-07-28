@@ -16,7 +16,18 @@ namespace PublishClient
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form_Connect());
+            Form_Connect con = new Form_Connect();
+            con.ShowDialog();
+            if (con.DialogResult == DialogResult.OK)
+            {
+                Form_Login login = new Form_Login();
+                login.ShowDialog();
+                if (login.DialogResult == DialogResult.OK)
+                    Application.Run(new Form_Main());
+            }
+
+
+            
         }
     }
 }

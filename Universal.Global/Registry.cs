@@ -32,8 +32,9 @@ namespace Universal.Global
             Microsoft.Win32.RegistryKey key = Microsoft.Win32.Registry.CurrentUser;
             Microsoft.Win32.RegistryKey NanoWare = key.OpenSubKey("SOFTWARE\\NanoWare");
             Microsoft.Win32.RegistryKey Addr = NanoWare.OpenSubKey(address);
-            string value = Addr.GetValue(name).ToString();
-            return value;
+            if (Addr.GetValue(name) != null)
+                return Addr.GetValue(name).ToString();
+            else return null;
         }
     }
 }

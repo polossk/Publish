@@ -10,15 +10,13 @@ namespace Universal.Net
 {
     public class UDPMessage
     {
-        public static int DEFAULT_BROADCAST_PORT = 57777;
-        public static string PUBLIC_VERIFICATION = "~publish-server~";
         private volatile bool _shouldStopBroadcast;
 
-        public void OnBroadcast(int threadID)
+        public void OnBroadcast(int threadID, int port, string ver)
         {
             UdpClient bcHost = new UdpClient(new IPEndPoint(IPAddress.Any, 0));
-            IPEndPoint bcTarget = new IPEndPoint(IPAddress.Broadcast, DEFAULT_BROADCAST_PORT);
-            byte[] buf = Encoding.Unicode.GetBytes(PUBLIC_VERIFICATION);
+            IPEndPoint bcTarget = new IPEndPoint(IPAddress.Broadcast, port);
+            byte[] buf = Encoding.Unicode.GetBytes(ver);
             _shouldStopBroadcast = false;
             while (!_shouldStopBroadcast)
             {
@@ -34,16 +32,16 @@ namespace Universal.Net
             _shouldStopBroadcast = true;
         }
 
-        public IPAddress OnListenBroadcast(int threadID)
+        public IPAddress OnListenBroadcast(int threadID, int port, string ver)
         {
             IPAddress ret = IPAddress.Any;
-            OnListenBroadcast(threadID, out ret);
+            OnListenBroadcast(threadID, port, ver, out ret);
             return ret;
         }
 
-        public void OnListenBroadcast(int threadID, out IPAddress serverIP)
+        public void OnListenBroadcast(int threadID, int port, string ver, out IPAddress serverIP)
         {
-            using (UdpClient client = new UdpClient(new IPEndPoint(IPAddress.Any, DEFAULT_BROADCAST_PORT)))
+            using (UdpClient client = new UdpClient(new IPEndPoint(IPAddress.Any, port)))
             {
                 IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, 0);
                 int testCnt = 0;
@@ -51,7 +49,7 @@ namespace Universal.Net
                 {
                     byte[] buf = client.Receive(ref endpoint);
                     string msg = Encoding.Unicode.GetString(buf);
-                    if (msg != PUBLIC_VERIFICATION) continue;
+                    if (msg != ver) continue;
                     else testCnt++;
                     DateTime now = DateTime.Now;
                     Console.WriteLine("{0} [client {1}]: receive message from [{2}:{3}]",

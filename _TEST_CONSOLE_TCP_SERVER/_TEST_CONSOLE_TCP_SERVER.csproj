@@ -49,6 +49,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Universal.Global\Universal.Global.csproj">
+      <Project>{782123cf-a317-4f80-9a54-9a9b703bf4b2}</Project>
+      <Name>Universal.Global</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Universal.Net.TCPMessage\Universal.Net.TCPMessage.csproj">
       <Project>{8f6ca815-0397-4065-815b-556dca8f75ff}</Project>
       <Name>Universal.Net.TCPMessage</Name>

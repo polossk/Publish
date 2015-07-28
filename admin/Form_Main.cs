@@ -68,7 +68,13 @@ namespace PublishServer
             // 开始 UDP 广播
             backgroundServer = new UDPMessage();
             udpThread = new Thread(
-                () => { backgroundServer.OnBroadcast(9999); }
+                () => {
+                    backgroundServer.OnBroadcast(
+                        threadID: 9999,
+                        port: Port.DEFAULT_BROADCAST_PORT,
+                        ver: VerMessage.PUBLIC_VERIFICATION
+                    );
+                }
             );
             udpThread.IsBackground = true;
             udpThread.Start();
@@ -88,6 +94,7 @@ namespace PublishServer
         private void Form_Main_FormClosing(object sender, System.Windows.Forms.FormClosingEventArgs e)
         {
             saveUsersData(rtUserPath);
+            tcpServerLogin.Stop();
         }
 
         public void OnListen(object sender, EventArgs e)
@@ -134,14 +141,6 @@ namespace PublishServer
             }
         }
 
-        static string LoginFailNoThisUser = "LoginFailNoThisUser";
-        static string LoginFailWrongPassword = "LoginFailWrongPassword";
-        static string LoginSuccess = "LoginSuccess";
-        static string RegFailNameConflict = "RegFailNameConflict";
-        static string RegFailOtherProblem = "RegFailOtherProblem";
-        static string RegSuccess = "RegSuccess";
-        static string WhatsUp = "NOP";
-
         public void OnListenLogin(object sender, EventArgs e)
         {
             TcpClient tcpClient = sender as TcpClient;
@@ -161,21 +160,21 @@ namespace PublishServer
                             // 用户不存在
                             if (idx == -1)
                             {
-                                answer = LoginFailNoThisUser; break;
+                                answer = VerMessage.LOGIN_FAILED_NO_SUCH_USER; break;
                             }
                             // 检查密码
                             if (!users.userList[idx].testPassword(result[2]))
                             {
-                                answer = LoginFailWrongPassword; break;
+                                answer = VerMessage.LOGIN_FAILED_WRONG_PW; break;
                             }
-                            answer = LoginSuccess;
+                            answer = VerMessage.LOGIN_SUCCESS;
                             break;
                         case "Reg":
                             idx = users.find(result[1]);
                             // 用户已经存在
                             if (idx >= 0)
                             {
-                                answer = RegFailNameConflict; break;
+                                answer = VerMessage.REG_FAILED_NAME_CONFLICT; break;
                             }
                             // 正常注册流程
                             int uid = users.getNewUID();
@@ -183,12 +182,12 @@ namespace PublishServer
                             bool success = users.addUser(one);
                             if (success)
                             {
-                                answer = RegSuccess;
+                                answer = VerMessage.REG_SUCCESS;
                                 saveUsersData(rtUserPath);
                             } else
-                                answer = RegFailOtherProblem;
+                                answer = VerMessage.REG_FAILED_OTHER_PROBLEM;
                             break;
-                        default: answer = WhatsUp; break;
+                        default: answer = VerMessage.DEFAULT_RESPONSE; break;
                     }
                     buf.Write(answer);
                 } catch (Exception ex) {
@@ -217,8 +216,8 @@ namespace PublishServer
             BinaryReader rd = new BinaryReader(fileStream);
             rd.BaseStream.Seek(0, SeekOrigin.Begin);
             byte[] cipher = rd.ReadBytes((int)rd.BaseStream.Length);
-            string key = Registry.ReadKey4Registry("Encrypt", "SecretKey");
-            string iv = Registry.ReadKey4Registry("Encrypt", "InitVector");
+            string key = Registry.ReadKey4Registry("PublishServer\\Encrypt", "SecretKey");
+            string iv = Registry.ReadKey4Registry("PublishServer\\Encrypt", "InitVector");
             byte[] raw = Cipher.AESDecrypt(cipher, key, iv);
             MemoryStream buf = new MemoryStream(raw);
             BinaryFormatter bf = new BinaryFormatter();
@@ -249,8 +248,8 @@ namespace PublishServer
             fileStream.Flush();
             fileStream.Close();
             fileStream.Dispose();
-            Registry.AddKey2Registry("Encrypt", "SecretKey", key);
-            Registry.AddKey2Registry("Encrypt", "InitVector", iv);
+            Registry.AddKey2Registry("PublishServer\\Encrypt", "SecretKey", key);
+            Registry.AddKey2Registry("PublishServer\\Encrypt", "InitVector", iv);
         }
     }
 }

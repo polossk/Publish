@@ -62,8 +62,8 @@ namespace PublishServer
             BinaryReader rd = new BinaryReader(fileStream);
             rd.BaseStream.Seek(0, SeekOrigin.Begin);
             byte[] cipher = rd.ReadBytes((int)rd.BaseStream.Length);
-            string key = Registry.ReadKey4Registry("Encrypt", "SecretKey");
-            string iv = Registry.ReadKey4Registry("Encrypt", "InitVector");
+            string key = Registry.ReadKey4Registry("PublishServer\\Encrypt", "SecretKey");
+            string iv = Registry.ReadKey4Registry("PublishServer\\Encrypt", "InitVector");
             byte[] raw = Cipher.AESDecrypt(cipher, key, iv);
             MemoryStream buf = new MemoryStream(raw);
             BinaryFormatter bf = new BinaryFormatter();
@@ -94,8 +94,8 @@ namespace PublishServer
             fileStream.Flush();
             fileStream.Close();
             fileStream.Dispose();
-            Registry.AddKey2Registry("Encrypt", "SecretKey", key);
-            Registry.AddKey2Registry("Encrypt", "InitVector", iv);
+            Registry.AddKey2Registry("PublishServer\\Encrypt", "SecretKey", key);
+            Registry.AddKey2Registry("PublishServer\\Encrypt", "InitVector", iv);
         }
         /// <summary>
         /// 用户登录操作
@@ -200,6 +200,9 @@ namespace PublishServer
                 MessageBox.Show("用户[" + uac + "]注册成功。\n请登录。", "注册成功", MessageBoxButtons.OK);
                 // 保存新的注册信息
                 saveUsersData(rtUserPath);
+                // 转到登陆界面
+                this.tabControl1.SelectTab(this.tabPage1);
+                this.textBox_UesrAccount.Text = uac;
                 return;
             }
             else

@@ -8,17 +8,20 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Collections;
+using System.Net;
+using Universal.Global;
+using Universal.Net;
 
 
 namespace PublishClient
 {
     public partial class Form_Login : Form
     {
-        /*
-        UserSet users;
-        string rtUserPath;
+        // 登陆端口
+        IPAddress serverIP;
+        TcpClientP tcpClientLogin; // 56666
+
         public Form_Login()
         {
             InitializeComponent();
@@ -30,18 +33,12 @@ namespace PublishClient
         /// <param name="e"></param>
         private void Form_Login_Load(object sender, EventArgs e)
         {
-            rtUserPath = System.AppDomain.CurrentDomain.SetupInformation.ApplicationBase
-                + "uesrs.dat";
-            FileInfo fi = new FileInfo(rtUserPath);
-            if (fi.Exists)
-                loadUsersData(rtUserPath);
-            else
-            {
-                FileStream fs = fi.Create();
-                fs.Close();
-                users = new UserSet();
-                saveUsersData(rtUserPath);
-            }
+            serverIP = IPAddress.Parse(Registry.ReadKey4Registry("PublishClient", "ServerIP"));
+            tcpClientLogin = new TcpClientP();
+            tcpClientLogin.Connect(serverIP, 56666);
+            string lastUser = Registry.ReadKey4Registry("PublishClient", "LastUser");
+            if (lastUser != null)
+                this.textBox_UesrAccount.Text = lastUser;
         }
         /// <summary>
         /// 关闭窗口时保存数据
@@ -50,53 +47,12 @@ namespace PublishClient
         /// <param name="e"></param>
         private void Form_Login_FormClosing(object sender, System.Windows.Forms.FormClosingEventArgs e)
         {
-            saveUsersData(rtUserPath);
+            tcpClientLogin.Close();
+            if (this.textBox_UesrAccount.Text == null) return;
+            string lastUser = this.textBox_UesrAccount.Text;
+            Registry.AddKey2Registry("PublishClient", "LastUser", lastUser);
         }
-        /// <summary>
-        /// 从文件读取当前的账户信息
-        /// </summary>
-        /// <param name="path">文件路径</param>
-        private void loadUsersData(string path)
-        {
-            FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            BinaryReader rd = new BinaryReader(fileStream);
-            rd.BaseStream.Seek(0, SeekOrigin.Begin);
-            byte[] cipher = rd.ReadBytes((int)rd.BaseStream.Length);
-            string key = Global.ReadKey4Registry("Encrypt", "SecretKey");
-            string iv = Global.ReadKey4Registry("Encrypt", "InitVector");
-            byte[] raw = Global.AESDecrypt(cipher, key, iv);
-            MemoryStream buf = new MemoryStream(raw);
-            BinaryFormatter bf = new BinaryFormatter();
-            users = bf.Deserialize(buf) as UserSet;
-            // 释放文件流资源
-            fileStream.Flush();
-            fileStream.Close();
-            fileStream.Dispose();
-        }
-        /// <summary>
-        /// 存储新的用户登录信息
-        /// </summary>
-        /// <param name="path">文件路径</param>
-        private void saveUsersData(string path)
-        {
-            FileStream fileStream = new FileStream(path, FileMode.Create);
-            BinaryFormatter bf = new BinaryFormatter();
-            MemoryStream buf = new MemoryStream();
-            bf.Serialize(buf, users);
-            byte[] serBytes = buf.ToArray();
-            buf.Close();
-            buf.Dispose();
-            string longkey = Global.getInitVector(24);
-            string key = longkey.Substring(0, 16);
-            string iv = longkey.Substring(16, 8);
-            byte[] cipher = Global.AESEncrypt(serBytes, key, iv);
-            fileStream.Write(cipher, 0, cipher.Length);
-            fileStream.Flush();
-            fileStream.Close();
-            fileStream.Dispose();
-            Global.AddKey2Registry("Encrypt", "SecretKey", key);
-            Global.AddKey2Registry("Encrypt", "InitVector", iv);
-        }
+
         /// <summary>
         /// 用户登录操作
         /// </summary>
@@ -118,34 +74,31 @@ namespace PublishClient
                 MessageBox.Show("密码不能为空！", "输入错误", MessageBoxButtons.OK);
                 return;
             }
-            upw = Global.md5Encrypt(upw);
-            int idx = users.find(uac);
+            upw = Cipher.md5Encrypt(upw);
+            string question = "Login " + uac + " " + upw;
+            string ret;
+            tcpClientLogin.Query(question, out ret);
             // 用户不存在
-            if (idx == -1)
+            if (ret == VerMessage.LOGIN_FAILED_NO_SUCH_USER)
             {
                 string msg = "用户[" + uac + "]不存在！";
                 MessageBox.Show(msg, "用户错误", MessageBoxButtons.OK);
                 return;
             }
             // 检查密码
-            if (!users.userList[idx].testPassword(upw))
+            if (ret == VerMessage.LOGIN_FAILED_WRONG_PW)
             {
                 string msg = "用户[" + uac + "]密码错误！";
                 MessageBox.Show(msg, "密码错误", MessageBoxButtons.OK);
                 return;
             }
-            // 检查权限
-            if (!users.userList[idx].testAdmin())
+            // 成功登陆
+            if (ret == VerMessage.LOGIN_SUCCESS)
             {
-                string msg = "用户[" + uac + "]不是管理员！登录失败。";
-                MessageBox.Show(msg, "权限错误", MessageBoxButtons.OK);
-                return;
-            }
-            else
-            {
-                string msg = "用户[" + uac + "]是管理员！登录成功。正在初始化数据，请稍等。";
+                string msg = "用户[" + uac + "]登录成功。正在初始化数据，请稍等。";
                 MessageBox.Show(msg, "登陆成功", MessageBoxButtons.OK);
-                return;
+                this.DialogResult = DialogResult.OK;
+                this.Close();
             }
         }
         /// <summary>
@@ -180,30 +133,30 @@ namespace PublishClient
                 MessageBox.Show("密码不能短于4位！", "输入错误", MessageBoxButtons.OK);
                 return;
             }
-            upw = Global.md5Encrypt(upw);
-            int idx = users.find(uac);
+            upw = Cipher.md5Encrypt(upw);
+            string question = "Reg " + uac + " " + upw + " " + ucl;
+            string ret;
+            tcpClientLogin.Query(question, out ret);
             // 用户已经存在
-            if (idx >= 0)
+            if (ret == VerMessage.REG_FAILED_NAME_CONFLICT)
             {
                 string msg = "用户[" + uac + "]已经存在！注册失败。\n请更换用户名重试。";
                 MessageBox.Show(msg, "注册失败。", MessageBoxButtons.OK);
                 return;
             }
-            // 正常注册流程
-            int uid = users.getNewUID();
-            bool isAdmin = checkBox_Reg_isAdmin.Checked;
-            User one = new User(uid, uac, ucl, upw, isAdmin);
-            bool success = users.addUser(one);
-            if (success)
-            {
-                MessageBox.Show("用户[" + uac + "]注册成功。\n请登录。", "注册成功", MessageBoxButtons.OK);
-                // 保存新的注册信息
-                saveUsersData(rtUserPath);
-                return;
-            }
-            else
+            // 注册意外失败
+            if (ret == VerMessage.REG_FAILED_OTHER_PROBLEM)
             {
                 MessageBox.Show("注册出现意外的失败，请更换用户名重试。", "注册失败", MessageBoxButtons.OK);
+                return;
+            }
+            // 注册成功
+            if (ret == VerMessage.REG_SUCCESS)
+            {
+                MessageBox.Show("用户[" + uac + "]注册成功。\n请登录。", "注册成功", MessageBoxButtons.OK);
+                // 转到登陆界面
+                this.tabControl1.SelectTab(this.tabPage1);
+                this.textBox_UesrAccount.Text = uac;
                 return;
             }
         }
@@ -231,6 +184,6 @@ namespace PublishClient
         {
             this.Close();
         }
-         */
+        
     }
 }

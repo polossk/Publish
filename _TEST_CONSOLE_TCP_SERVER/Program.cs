@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 using Universal.Net;
+using Universal.Global;
 
 namespace _TEST_CONSOLE_TCP_SERVER
 {
@@ -70,7 +71,13 @@ namespace _TEST_CONSOLE_TCP_SERVER
             // 准备 UDP 广播，广播服务器的IP地址
             UDPMessage backgroundServer = new UDPMessage();
             Thread udpThread = new Thread(
-                () => { backgroundServer.OnBroadcast(9999); }
+                () => {
+                    backgroundServer.OnBroadcast(
+                        threadID: 9999,
+                        port: Port.DEFAULT_BROADCAST_PORT,
+                        ver: VerMessage.PUBLIC_VERIFICATION
+                    );
+                }
             );
             udpThread.IsBackground = true;
 
