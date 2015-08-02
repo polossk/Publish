@@ -27,9 +27,13 @@ namespace PublishServer
         UserSet users;
         string rtUserPath;
 
+        // 登陆用户信息
+        ClientTable onlineUsers;
+
         // 网络客户端口
         UDPMessage      backgroundServer;       // 57777
         TcpListenerP    tcpServerLogin;         // 56666
+        TcpClientP      tcpClientUserFile;      // 56655
         TcpListenerP    tcpServerRecvMessage;   // 58888
         TcpClientP      tcpClientSendMessage;   // 59999
         TcpClientP      tcpClientBroadcast;     // 59966
@@ -52,6 +56,7 @@ namespace PublishServer
         private void Form_Main_Load(object sender, EventArgs e)
         {
             __tmp__ = new NotStatic();
+            onlineUsers = new ClientTable();
             // 加载用户列表
             rtUserPath = System.AppDomain.CurrentDomain.SetupInformation.ApplicationBase
                 + "uesrs.dat";
@@ -81,9 +86,10 @@ namespace PublishServer
 
             // 所有 TCP 监听端口就绪
             tcpServerLogin = new TcpListenerP(new IPEndPoint(IPAddress.Any, 56666));
-            tcpServerLogin.OnThreadTaskRequest += new TcpListenerP.ThreadTaskRequest(OnListenLogin);
+            tcpServerLogin.OnThreadTaskRequest += new TcpListenerP.ThreadTaskRequest(OnListenClient);
 
             // 初始化所有 TCP 客户端
+            tcpClientUserFile = new TcpClientP();
         }
 
         /// <summary>
@@ -141,68 +147,126 @@ namespace PublishServer
             }
         }
 
-        public void OnListenLogin(object sender, EventArgs e)
+        public void OnClientLogin(ref IPAddress where, ref string[] result, out string answer)
+        {
+            User client; answer = VerMessage.DEFAULT_RESPONSE;
+            int idx = users.find(result[1], out client);
+            // 用户不存在
+            if (idx == -1)
+            {
+                answer = VerMessage.LOGIN_FAILED_NO_SUCH_USER;
+                return;
+            }
+            // 检查密码
+            if (!client.testPassword(result[2]))
+            {
+                answer = VerMessage.LOGIN_FAILED_WRONG_PW;
+                return;
+            }
+            // 发送用户个人资料
+            tcpClientUserFile = new TcpClientP();
+            tcpClientUserFile.Connect(new IPEndPoint(where, Port.TCP_USER_FILE_PORT));
+            string data = client.toUserFile();
+            tcpClientUserFile.Write(data);
+            tcpClientUserFile.Close();
+            // 加入连接列表
+            Client login = new Client(where, client);
+            onlineUsers.AddClient(login);
+            // 反馈消息
+            answer = VerMessage.LOGIN_SUCCESS;
+        }
+
+        public void OnClientReg(ref string[] result, out string answer)
+        {
+            User client; answer = VerMessage.DEFAULT_RESPONSE;
+            int idx = users.find(result[1], out client);
+            // 用户已经存在
+            if (idx >= 0)
+            {
+                answer = VerMessage.REG_FAILED_NAME_CONFLICT;
+                return;
+            }
+            // 正常注册流程
+            int uid = users.getNewUID();
+            User one = new User(uid, result[1], result[3], result[2]);
+            bool success = users.addUser(one);
+            if (success)
+            {
+                answer = VerMessage.REG_SUCCESS;
+                saveUsersData(rtUserPath);
+            }
+            else
+                answer = VerMessage.REG_FAILED_OTHER_PROBLEM;
+        }
+
+        public void OnClientLogoff(ref string[] result, out string answer)
+        {
+            User client; answer = VerMessage.DEFAULT_RESPONSE;
+            int idx = users.find(result[1], out client);
+            if (idx == -1)
+            {
+                answer = VerMessage.LOGOFF_FAILED_NO_SUCH_USER;
+                return;
+            }
+            Client guy;
+            if (onlineUsers.QueryClient(result[1], out guy))
+            {
+                onlineUsers.RemoveClient(result[1]);
+                answer = VerMessage.LOGOFF_SUCCESS;
+            }
+            else answer = VerMessage.LOGOFF_FAILED_NOT_LOGIN;
+        }
+
+
+        public void OnListenClient(object sender, EventArgs e)
         {
             TcpClient tcpClient = sender as TcpClient;
-            int threadID = 6666;
+            int threadID = Port.TCP_LOGIN_PORT % 10000;
             using (NetworkStreamP buf = new NetworkStreamP(tcpClient.GetStream()))
             {
                 buf.ReceiveBufferSize = tcpClient.ReceiveBufferSize;
-                while (true) { try {
-                    string question, answer;
-                    int idx = -1;
-                    buf.Read(out question);
-                    string[] result = question.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                    switch (result[0])
+                while (true)
+                {
+                    try
                     {
-                        case "Login":
-                            idx = users.find(result[1]);
-                            // 用户不存在
-                            if (idx == -1)
-                            {
-                                answer = VerMessage.LOGIN_FAILED_NO_SUCH_USER; break;
-                            }
-                            // 检查密码
-                            if (!users.userList[idx].testPassword(result[2]))
-                            {
-                                answer = VerMessage.LOGIN_FAILED_WRONG_PW; break;
-                            }
-                            answer = VerMessage.LOGIN_SUCCESS;
-                            break;
-                        case "Reg":
-                            idx = users.find(result[1]);
-                            // 用户已经存在
-                            if (idx >= 0)
-                            {
-                                answer = VerMessage.REG_FAILED_NAME_CONFLICT; break;
-                            }
-                            // 正常注册流程
-                            int uid = users.getNewUID();
-                            User one = new User(uid, result[1], result[3], result[2]);
-                            bool success = users.addUser(one);
-                            if (success)
-                            {
-                                answer = VerMessage.REG_SUCCESS;
-                                saveUsersData(rtUserPath);
-                            } else
-                                answer = VerMessage.REG_FAILED_OTHER_PROBLEM;
-                            break;
-                        default: answer = VerMessage.DEFAULT_RESPONSE; break;
+                        IPEndPoint where = tcpClient.Client.RemoteEndPoint as IPEndPoint;
+                        IPAddress clientIP = where.Address;
+                        string question, answer;
+                        buf.Read(out question);
+                        string[] result = question.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        switch (result[0])
+                        {
+                            case "Login":
+                                OnClientLogin(ref clientIP, ref result, out answer);
+                                break;
+                            case "Reg":
+                                OnClientReg(ref result, out answer);
+                                break;
+                            case "Logoff":
+                                OnClientLogoff(ref result, out answer);
+                                break;
+                            default: answer = VerMessage.DEFAULT_RESPONSE; break;
+                        }
+                        buf.Write(answer);
                     }
-                    buf.Write(answer);
-                } catch (Exception ex) {
-                    Type type = ex.GetType();
-                    if (type == typeof(TimeoutException)) {
-                        // 超时异常，不中断连接
-                        Console.WriteLine("{0} [host {1}]: 数据超时失败！",
-                        DateTime.Now, threadID);
-                    } else {
-                        // 仍旧抛出异常，中断连接
-                        Console.WriteLine("{0} [host {1}]: 中断连接异常原因：{2}！",
-                        DateTime.Now, threadID, type.Name);
-                        throw ex;
+                    catch (Exception ex)
+                    {
+                        Type type = ex.GetType();
+                        if (type == typeof(TimeoutException))
+                        {
+                            // 超时异常，不中断连接
+                            Console.WriteLine("{0} [host {1}]: 数据超时失败！",
+                            DateTime.Now, threadID);
+                        }
+                        else
+                        {
+                            // 仍旧抛出异常，中断连接
+                            Console.WriteLine("{0} [host {1}]: 中断连接异常原因：{2}！",
+                            DateTime.Now, threadID, type.Name);
+                            throw ex;
+                        }
                     }
-                } }
+                }
             }
         }
 

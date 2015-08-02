@@ -13,16 +13,21 @@ namespace PublishServer
         /// <summary>
         /// 所有用户的清单容器
         /// </summary>
-        public List<User> userList { get; set; }
+
+        private Dictionary<string, User> advUserTable { get; set; }
+
+        private int lastUserID;
+
 
         /// <summary>
         /// 默认构造函数，默认添加管理员账号admin和操作员账号user
         /// </summary>
         public UserSet()
         {
-            userList = new List<User>();
-            userList.Add(new User(0, "admin", "管理员", Cipher.md5Encrypt("admin"), true));
-            userList.Add(new User(1, "user", "操作员", Cipher.md5Encrypt("user")));
+            advUserTable = new Dictionary<string, User>();
+            advUserTable.Add("admin", new User(0, "admin", "管理员", Cipher.md5Encrypt("admin"), true));
+            advUserTable.Add("user", new User(1, "user", "操作员", Cipher.md5Encrypt("user")));
+            lastUserID = 1;
         }
 
         /// <summary>
@@ -30,17 +35,11 @@ namespace PublishServer
         /// </summary>
         /// <param name="uac">账户名</param>
         /// <returns>账户所在下标，若没有则返回-1</returns>
-        public int find(string uac)
+        public int find(string uac, out User val)
         {
-            int idx = -1;
-            for (int i = 0; i < userList.Count; i++ )
-            {
-                if (uac == userList[i].account)
-                    { idx = i; break; }
-                else continue;
-            }
-            return idx;
-            
+            if (advUserTable.TryGetValue(uac, out val))
+                return val.userID;
+            else return -1;
         }
         /// <summary>
         /// 尝试注册一个新用户
@@ -49,19 +48,17 @@ namespace PublishServer
         /// <returns>成功注册返回true，否则返回false</returns>
         public bool addUser(User u)
         {
-            int idx = find(u.account);
+            User tmp;
+            int idx = find(u.account, out tmp);
             if (idx != -1) return false;
-            userList.Add(u);
+            advUserTable.Add(u.account, u);
+            lastUserID = u.userID;
             return true;
         }
         /// <summary>
         /// 获得最新的UserID
         /// </summary>
         /// <returns>UserID的值</returns>
-        public int getNewUID()
-        {
-            int uid = userList[userList.Count - 1].userID + 1;
-            return uid;
-        }
+        public int getNewUID() { return lastUserID + 1; }
     }
 }

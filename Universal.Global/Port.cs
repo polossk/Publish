@@ -13,6 +13,7 @@ namespace Universal.Global
     {
         public static int DEFAULT_BROADCAST_PORT    = 57777;
         public static int TCP_LOGIN_PORT            = 56666;
+        public static int TCP_USER_FILE_PORT        = 56655;
         public static int TCP_SERVERRECV_PORT       = 58888;
         public static int TCP_SERVERSEND_PORT       = 59999;
         public static int TCP_CLIENTSEND_PORT       = 58888;

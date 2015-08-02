@@ -18,6 +18,10 @@ namespace Universal.Global
         public static string REG_FAILED_NAME_CONFLICT   = "RegFailedNameConflict";
         public static string REG_FAILED_OTHER_PROBLEM   = "RegFailedOtherProblem";
         public static string REG_SUCCESS                = "RegSuccess";
+        public static string LOGOFF_SUCCESS             = "LogoffSuccess";
+        public static string LOGOFF_FAILED_NO_SUCH_USER = "LogoffFailedNoSuchUser";
+        public static string LOGOFF_FAILED_NOT_LOGIN    = "LogoffFailedNotLogin";
+        public static string LOGOFF_FAILED              = "LogoffFailed";
         public static string DEFAULT_RESPONSE           = "NOP";
     }
 }

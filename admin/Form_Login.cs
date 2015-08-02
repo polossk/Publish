@@ -118,8 +118,13 @@ namespace PublishServer
                 MessageBox.Show("密码不能为空！", "输入错误", MessageBoxButtons.OK);
                 return;
             }
-            upw = Cipher.md5Encrypt(upw);
-            int idx = users.find(uac);
+            if (uac.Contains(' ') || upw.Contains(' '))
+            {
+                MessageBox.Show("任何字段不得包含空格与回车字符！", "输入错误", MessageBoxButtons.OK);
+                return;
+            }
+            User client;
+            int idx = users.find(uac, out client);
             // 用户不存在
             if (idx == -1)
             {
@@ -128,14 +133,15 @@ namespace PublishServer
                 return;
             }
             // 检查密码
-            if (!users.userList[idx].testPassword(upw))
+            upw = Cipher.md5Encrypt(upw);
+            if (!client.testPassword(upw))
             {
                 string msg = "用户[" + uac + "]密码错误！";
                 MessageBox.Show(msg, "密码错误", MessageBoxButtons.OK);
                 return;
             }
             // 检查权限
-            if (!users.userList[idx].testAdmin())
+            if (!client.testAdmin())
             {
                 string msg = "用户[" + uac + "]不是管理员！登录失败。";
                 MessageBox.Show(msg, "权限错误", MessageBoxButtons.OK);
@@ -181,8 +187,13 @@ namespace PublishServer
                 MessageBox.Show("密码不能短于4位！", "输入错误", MessageBoxButtons.OK);
                 return;
             }
-            upw = Cipher.md5Encrypt(upw);
-            int idx = users.find(uac);
+            if (uac.Contains(' ') || upw.Contains(' ') || ucl.Contains(' '))
+            {
+                MessageBox.Show("任何字段不得包含空格与回车字符！", "输入错误", MessageBoxButtons.OK);
+                return;
+            }
+            User client;
+            int idx = users.find(uac, out client);
             // 用户已经存在
             if (idx >= 0)
             {
@@ -191,6 +202,7 @@ namespace PublishServer
                 return;
             }
             // 正常注册流程
+            upw = Cipher.md5Encrypt(upw);
             int uid = users.getNewUID();
             bool isAdmin = checkBox_Reg_isAdmin.Checked;
             User one = new User(uid, uac, ucl, upw, isAdmin);

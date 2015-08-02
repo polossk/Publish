@@ -76,5 +76,10 @@ namespace PublishServer
         {
             return upw == password;
         }
+
+        public string toUserFile()
+        {
+            return Convert.ToString(userID) + " " + account + " " + name; 
+        }
     }
 }

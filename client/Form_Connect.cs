@@ -36,8 +36,7 @@ namespace PublishClient
         private void button_Exit_Click(object sender, EventArgs e)
         {
             if (listenBroadcast.IsAlive) listenBroadcast.Abort();
-            try { this.listenBroadcast.Join(); } catch { }
-            this.Close();
+            System.Environment.Exit(0);
         }
 
         private void OnLoad_Connect(object sender, EventArgs e)
@@ -67,19 +66,28 @@ namespace PublishClient
             {
                 var tmp = serverIP;
                 if (tmp != IPAddress.Any) break;
-                else Thread.Sleep(100);
+                else Thread.Sleep(300);
             }
-            FindServer();
+            tryInvoke(FindServer);
         }
 
-        private void FindServer()
+        private delegate bool OnWatchServer();
+
+        private bool FindServer()
         {
-            listenBroadcast.Join();
             this.Text = "是否连接";
             this.label_Title.Text = "已经找到服务器。";
             this.label_ShowIP.Text = "服务器地址为：[" + serverIP.ToString() + "]";
             this.button_Launch.Enabled = true;
             this.button_Exit.Enabled = true;
+            return true;
+        }
+
+        private bool tryInvoke(OnWatchServer watcher)
+        {
+            if (this.InvokeRequired)
+                return (bool)this.Invoke(watcher);
+            else return watcher();
         }
 
         private void button_Launch_Click(object sender, EventArgs e)
