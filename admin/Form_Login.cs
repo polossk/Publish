@@ -80,12 +80,8 @@ namespace PublishServer
         private void saveUsersData(string path)
         {
             FileStream fileStream = new FileStream(path, FileMode.Create);
-            BinaryFormatter bf = new BinaryFormatter();
-            MemoryStream buf = new MemoryStream();
-            bf.Serialize(buf, users);
-            byte[] serBytes = buf.ToArray();
-            buf.Close();
-            buf.Dispose();
+            byte[] serBytes;
+            ToBytes<UserSet>.GetBytes(ref users, out serBytes);
             string longkey = Cipher.getInitVector(24);
             string key = longkey.Substring(0, 16);
             string iv = longkey.Substring(16, 8);

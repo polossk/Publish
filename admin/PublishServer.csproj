@@ -159,6 +159,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Universal.Data\Universal.Data.csproj">
+      <Project>{07425296-474c-4261-afef-5697921f796e}</Project>
+      <Name>Universal.Data</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Universal.Global\Universal.Global.csproj">
       <Project>{782123cf-a317-4f80-9a54-9a9b703bf4b2}</Project>
       <Name>Universal.Global</Name>
