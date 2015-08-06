@@ -9,6 +9,7 @@ namespace Universal.Data
     /// <summary> 教材基本信息 </summary>
     [Serializable] public class _BookInformation
     {
+        public string[] _rawData_ = new string[6];
         /// <summary> 职称列表 </summary>
         public enum AcademicTitle
         {
@@ -51,8 +52,7 @@ namespace Universal.Data
         public Category Belonging { get; set; }
         /// <summary> 教材属性 </summary>
         public Property Attr { get; set; }
-        /// <summary> 教材字数 </summary>
-        public int WordCount { get; set; }
+        
 
         /// <summary> 默认构造函数 </summary>
         public _BookInformation() { }
@@ -72,8 +72,7 @@ namespace Universal.Data
             AcademicTitle title,
             string pressname,
             Category belonging,
-            Property attribute,
-            int wordcount
+            Property attribute
         )
         {
             Name = name;
@@ -82,7 +81,82 @@ namespace Universal.Data
             PublishingCompany = pressname;
             Belonging = belonging;
             Attr = attribute;
-            WordCount = wordcount;
+            buildRawData();
+        }
+
+        public _BookInformation(string[] rawData)
+        {
+            _rawData_ = (string[])rawData.Clone();
+            Name = rawData[0];
+            Author = rawData[1];
+            switch (rawData[2])
+            {
+                case "院士":
+                    AuthorTitle = AcademicTitle.Academician; break;
+                case "教授":
+                    AuthorTitle = AcademicTitle.Professor; break;
+                case "副教授":
+                    AuthorTitle = AcademicTitle.AdjunctProfessor; break;
+                case "讲师":
+                    AuthorTitle = AcademicTitle.Lecturer; break;
+                default: break;
+            }
+            PublishingCompany = rawData[3];
+            switch (rawData[4])
+            {
+                case "社会科学":
+                    Belonging = Category.SocialSciences; break;
+                case "工科教材":
+                    Belonging = Category.EngineeringTextbook; break;
+                case "理科教材":
+                    Belonging = Category.ScienceTextbook; break;
+                default: break;
+            }
+            switch (rawData[5])
+            {
+                case "专著":
+                    Attr = Property.Monograph; break;
+                case "教材":
+                    Attr = Property.Textbook; break;
+                default: break;
+            }
+        }
+
+        public void buildRawData()
+        {
+            _rawData_[0] = Name;
+            _rawData_[1] = Author;
+            switch (AuthorTitle)
+            {
+                case AcademicTitle.Academician:
+                    _rawData_[2] = "院士"; break;
+                case AcademicTitle.Professor:
+                    _rawData_[2] = "教授"; break;
+                case AcademicTitle.AdjunctProfessor:
+                    _rawData_[2] = "副教授"; break;
+                case AcademicTitle.Lecturer:
+                    _rawData_[2] = "讲师"; break;
+                default: break;
+            }
+            _rawData_[3] = PublishingCompany;
+            switch (Belonging)
+            {
+                case Category.SocialSciences:
+                    _rawData_[4] = "社会科学"; break;
+                case Category.EngineeringTextbook:
+                    _rawData_[4] = "工科教材"; break;
+                case Category.ScienceTextbook:
+                    _rawData_[4] = "理科教材"; break;
+                default: break;
+            }
+            switch (Attr)
+            {
+                case Property.Monograph:
+                    _rawData_[5] = "专著"; break;
+                case Property.Textbook:
+                    _rawData_[5] = "教材"; break;
+                default: break;
+            }
         }
 
     }

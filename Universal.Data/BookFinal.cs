@@ -19,7 +19,7 @@ namespace Universal.Data
             int dBookCount = (int)MainInfo.BookPrint.BookCount;             // 册数
             int dBookPrint = MainValue.Value.PrintingCount;                 // 印数
             dBookPrint = (dBookPrint >= 2000) ? 2000 : dBookPrint;          // 只资助 2,000 册
-            int dWordCount = MainInfo.BookInfo.WordCount;                   // 字数
+            int dWordCount = MainInfo.BookPrint.WordCount;                  // 字数
             int dBookSize = (int)MainInfo.BookPrint.BookSize;               // 开本
             double fSheet = Math.Ceiling(dWordCount * 4 / 3.0 / dBookSize); // 印张
             double fPaperCount = dBookPrint * fSheet / 500.0;               // 令数

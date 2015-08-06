@@ -16,6 +16,7 @@ using System.Net.Sockets;
 using Universal.Net;
 using Universal.Global;
 using Universal.Data;
+using Microsoft.Office.Interop.Excel;
 
 namespace PublishServer
 {
@@ -30,6 +31,9 @@ namespace PublishServer
 
         // 登陆用户信息
         ClientTable onlineUsers;
+
+        // 教材信息表
+        BookDetailList bList;
 
         // 网络客户端口
         UDPMessage      backgroundServer;       // 57777
@@ -71,6 +75,13 @@ namespace PublishServer
                 users = new UserSet();
                 saveUsersData(rtUserPath);
             }
+
+            // 调整窗口属性
+            string uid = Registry.ReadKey4Registry("PublishServer", "CurrentUserID");
+            string uac = Registry.ReadKey4Registry("PublishServer", "CurrentUserAccount");
+            string ucl = Registry.ReadKey4Registry("PublishServer", "CurrentUserName");
+            this.Text = "教材补助经费评估软件 [" + ucl + "]" + " [#" + Convert.ToString(uid) + "]";
+
             // 开始 UDP 广播
             backgroundServer = new UDPMessage();
             udpThread = new Thread(
@@ -91,6 +102,25 @@ namespace PublishServer
 
             // 初始化所有 TCP 客户端
             tcpClientUserFile = new TcpClientP();
+
+            // 初始化教材列表
+            bList = new BookDetailList();
+
+            // 初始化教材列表显示
+            listViewBooks.Columns.Add("教材编号");
+            listViewBooks.Columns.Add("教材名称");
+            listViewBooks.Columns.Add("作者");
+            listViewBooks.Columns.Add("作者职称");
+            listViewBooks.Columns.Add("出版社");
+            listViewBooks.Columns.Add("教材类别");
+            listViewBooks.Columns.Add("教材属性");
+            listViewBooks.Columns.Add("教材字数");
+            listViewBooks.Columns.Add("装订规格");
+            listViewBooks.Columns.Add("开本大小");
+            listViewBooks.Columns.Add("册数");
+            listViewBooks.Columns.Add("正文用纸");
+            listViewBooks.Columns.Add("是否彩印");
+
         }
 
         /// <summary>
@@ -311,6 +341,66 @@ namespace PublishServer
             fileStream.Dispose();
             Registry.AddKey2Registry("PublishServer\\Encrypt", "SecretKey", key);
             Registry.AddKey2Registry("PublishServer\\Encrypt", "InitVector", iv);
+        }
+
+        private void openExcelFileDialog_FileOk(object sender, CancelEventArgs e)
+        {
+            MessageBox.Show(openExcelFileDialog.FileName, "Excel文件", MessageBoxButtons.OK);
+            TryOpenExcel(openExcelFileDialog.FileName);
+            foreach (var item in bList.__list)
+            {
+                ListViewItem tar = listViewBooks.Items.Add(item.BookID.ToString());
+                for (int j = 1; j <= 6; j++)
+                {
+                    tar.SubItems.Add(item.BookInfo._rawData_[j - 1]);
+                }
+                for (int j = 1; j <= 6; j++)
+                {
+                    tar.SubItems.Add(item.BookPrint._rawData_[j - 1]);
+                }
+            }
+        }
+
+        private void buttonOpenExcelFile_Click(object sender, EventArgs e)
+        {
+            this.openExcelFileDialog.InitialDirectory = Directory.GetCurrentDirectory();
+            this.openExcelFileDialog.ShowDialog();
+        }
+
+        private void saveExcelFileDialog_FileOk(object sender, CancelEventArgs e)
+        {
+
+        }
+
+        private void TryOpenExcel(string name)
+        {
+            ExcelOperator excel = new ExcelOperator();
+            excel.OpenExcel(name);
+            int idxRow = 2;
+            while (true)
+            {
+                Range range = excel[idxRow, 1];
+                if (range.Value2 == null) break;
+                string[] raw1 = new string[6];
+                string[] raw2 = new string[6];
+                int bid = (int)Math.Round(excel[idxRow, 1].Value2);
+                for (int idxColumn = 2; idxColumn <= 7; idxColumn++)
+                {
+                    Range cell = excel[idxRow, idxColumn];
+                    raw1[idxColumn - 2] = cell.Value2;
+                }
+                int word = (int)Math.Round(excel[idxRow, 8].Value2);
+                raw2[0] = word.ToString();
+                for (int idxColumn = 9; idxColumn <= 13; idxColumn++)
+                {
+                    Range cell = excel[idxRow, idxColumn];
+                    raw2[idxColumn - 8] = (string)cell.Value2;
+                }
+                BookDetail item = new BookDetail(bid, raw1, raw2);
+                bList.Add(item);
+                idxRow++;
+            }
+            excel.QuitExcel();
         }
     }
 }

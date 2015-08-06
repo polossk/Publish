@@ -29,6 +29,14 @@ namespace Universal.Data
             BookInfo = info;
             BookPrint = print;
         }
+
+        public BookDetail(int bid, string[] rawData1, string[] rawData2)
+        {
+            BookID = bid;
+            BookInfo = new _BookInformation(rawData1);
+            BookPrint = new _BookPrinting(rawData2);
+        }
+
         /// <summary> 获取教材属性信息 </summary>
         public BookInformation GetBookInfo()
         {
@@ -40,4 +48,21 @@ namespace Universal.Data
             return new BookPrinting(BookID, BookPrint);
         }
     }
+
+    [Serializable] public class BookDetailList
+    {
+        public List<BookDetail> __list { get; set; }
+        public int nextBookID { get; set; }
+        public BookDetailList()
+        {
+            __list = new List<BookDetail>();
+            nextBookID = 1;
+        }
+        public int getNextBID() { return nextBookID++; }
+
+        public void Add(BookDetail item) { __list.Add(item); }
+
+
+    }
+
 }

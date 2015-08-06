@@ -147,6 +147,9 @@ namespace PublishServer
             {
                 string msg = "用户[" + uac + "]是管理员！登录成功。正在初始化数据，请稍等。";
                 MessageBox.Show(msg, "登陆成功", MessageBoxButtons.OK);
+                Registry.AddKey2Registry("PublishServer", "CurrentUserID", client.userID.ToString());
+                Registry.AddKey2Registry("PublishServer", "CurrentUserAccount", uac);
+                Registry.AddKey2Registry("PublishServer", "CurrentUserName", client.name);
                 this.DialogResult = DialogResult.OK;
                 this.Close();
             }
