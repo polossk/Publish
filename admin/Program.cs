@@ -16,12 +16,19 @@ namespace PublishServer
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            /*
+            <--! DEBUG ONLY !-->
+            Application.Run(new Form_Item());
+            */
+            
             Form_Login login = new Form_Login();
             login.ShowDialog();
             if (login.DialogResult == DialogResult.OK)
             {
                 Application.Run(new Form_Main());
             }
+
+            
         }
     }
 }

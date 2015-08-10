@@ -17,7 +17,12 @@ namespace Universal.Data
         public _BookPrinting BookPrint { get; set; }
 
         /// <summary> 默认构造函数 </summary>
-        public BookDetail() { }
+        public BookDetail()
+        {
+            BookInfo = new _BookInformation();
+            BookPrint = new _BookPrinting();
+        }
+
         /// <summary>
         /// 属性赋值构造函数
         /// </summary>
@@ -63,6 +68,16 @@ namespace Universal.Data
         public void Add(BookDetail item) { __list.Add(item); }
 
 
+
+        public int Find(int id)
+        {
+            for (int i = 0; i < __list.Count; i++)
+            {
+                if (id == __list[i].BookID)
+                    return i;
+            }
+            return -1;
+        }
     }
 
 }

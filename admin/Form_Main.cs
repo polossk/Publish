@@ -107,20 +107,40 @@ namespace PublishServer
             bList = new BookDetailList();
 
             // 初始化教材列表显示
-            listViewBooks.Columns.Add("教材编号");
-            listViewBooks.Columns.Add("教材名称");
-            listViewBooks.Columns.Add("作者");
-            listViewBooks.Columns.Add("作者职称");
-            listViewBooks.Columns.Add("出版社");
-            listViewBooks.Columns.Add("教材类别");
-            listViewBooks.Columns.Add("教材属性");
-            listViewBooks.Columns.Add("教材字数");
-            listViewBooks.Columns.Add("装订规格");
-            listViewBooks.Columns.Add("开本大小");
-            listViewBooks.Columns.Add("册数");
-            listViewBooks.Columns.Add("正文用纸");
-            listViewBooks.Columns.Add("是否彩印");
+            listViewBooks.Columns.Add("lstBookID", "教材编号");
+            listViewBooks.Columns.Add("lstInfoName", "教材名称");
+            listViewBooks.Columns.Add("lstInfoAuth", "作者");
+            listViewBooks.Columns.Add("lstInfoATit", "作者职称");
+            listViewBooks.Columns.Add("lstInfoPbsh", "出版社");
+            listViewBooks.Columns.Add("lstInfoBlng", "教材类别");
+            listViewBooks.Columns.Add("lstInfoAttr", "教材属性");
+            listViewBooks.Columns.Add("lstPrintWord", "教材字数");
+            listViewBooks.Columns.Add("lstPrintBind", "装订规格");
+            listViewBooks.Columns.Add("lstPrintSize", "开本大小");
+            listViewBooks.Columns.Add("lstPrintCnts", "册数");
+            listViewBooks.Columns.Add("lstPrintPapr", "正文用纸");
+            listViewBooks.Columns.Add("lstPrintColr", "是否彩印");
 
+            
+
+        }
+
+
+        private void SetWidthListViewBooks(int val)
+        {
+        	listViewBooks.Columns["lstBookID"].Width = val;
+            listViewBooks.Columns["lstInfoName"].Width = val;
+            listViewBooks.Columns["lstInfoAuth"].Width = val;
+            listViewBooks.Columns["lstInfoATit"].Width = val;
+            listViewBooks.Columns["lstInfoPbsh"].Width = val;
+            listViewBooks.Columns["lstInfoBlng"].Width = val;
+            listViewBooks.Columns["lstInfoAttr"].Width = val;
+            listViewBooks.Columns["lstPrintWord"].Width = val;
+            listViewBooks.Columns["lstPrintBind"].Width = val;
+            listViewBooks.Columns["lstPrintSize"].Width = val;
+            listViewBooks.Columns["lstPrintCnts"].Width = val;
+            listViewBooks.Columns["lstPrintPapr"].Width = val;
+            listViewBooks.Columns["lstPrintColr"].Width = val;
         }
 
         /// <summary>
@@ -345,7 +365,10 @@ namespace PublishServer
 
         private void openExcelFileDialog_FileOk(object sender, CancelEventArgs e)
         {
-            MessageBox.Show(openExcelFileDialog.FileName, "Excel文件", MessageBoxButtons.OK);
+            Thread alert = new Thread( () => {
+                MessageBox.Show("正在导入数据，请稍后", "Excel文件", MessageBoxButtons.OK);
+            });
+            alert.Start();
             TryOpenExcel(openExcelFileDialog.FileName);
             foreach (var item in bList.__list)
             {
@@ -359,6 +382,8 @@ namespace PublishServer
                     tar.SubItems.Add(item.BookPrint._rawData_[j - 1]);
                 }
             }
+            SetWidthListViewBooks(-2);
+            alert.Join();
         }
 
         private void buttonOpenExcelFile_Click(object sender, EventArgs e)
@@ -379,6 +404,13 @@ namespace PublishServer
             int idxRow = 2;
             while (true)
             {
+                Range test = excel[idxRow, 1];
+                if (test.Value2 == null) break;
+                else idxRow++;
+            }
+            int cnt = idxRow;
+            for (idxRow = 2; idxRow < cnt; idxRow++ )
+            {
                 Range range = excel[idxRow, 1];
                 if (range.Value2 == null) break;
                 string[] raw1 = new string[6];
@@ -398,9 +430,38 @@ namespace PublishServer
                 }
                 BookDetail item = new BookDetail(bid, raw1, raw2);
                 bList.Add(item);
-                idxRow++;
             }
             excel.QuitExcel();
+        }
+
+        private void listViewBooks_DoubleClick(object sender, EventArgs e)
+        {
+            int lineNumber = this.listViewBooks.SelectedIndices[0];
+            var line = this.listViewBooks.Items[lineNumber];
+            string bid = line.SubItems[0].Text;
+            int id = int.Parse(bid);
+            int idx = bList.Find(id);
+            if (idx == -1) return;
+            BookDetail book = bList.__list[idx];
+            Form_Item item = new Form_Item(book);
+            item.ReturnBook += (o, e1) =>
+            {
+                BookDetail tmp = item.book;
+                // 填充到 BookList
+                bList.__list[idx] = tmp;
+                bList.__list[idx].BookInfo.buildRawData();
+                bList.__list[idx].BookPrint.buildRawData();
+                // 重新整理内容到 ListView
+                for (int i = 0; i < 6; i++)
+                {
+                    line.SubItems[1 + i].Text = bList.__list[idx].BookInfo._rawData_[i];
+                }
+                for (int i = 0; i < 6; i++)
+                {
+                    line.SubItems[7 + i].Text = bList.__list[idx].BookPrint._rawData_[i];
+                }
+            };
+            item.ShowDialog();
         }
     }
 }

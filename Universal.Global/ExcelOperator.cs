@@ -15,7 +15,7 @@ namespace Universal.Global
         public ExcelOperator()
         {
             ExcelApplication = new Application();
-            ExcelApplication.Visible = true;
+            ExcelApplication.Visible = false;
         }
 
         public void CreateExcel()

@@ -95,6 +95,7 @@
             this.listViewBooks.TabIndex = 1;
             this.listViewBooks.UseCompatibleStateImageBehavior = false;
             this.listViewBooks.View = System.Windows.Forms.View.Details;
+            this.listViewBooks.DoubleClick += new System.EventHandler(this.listViewBooks_DoubleClick);
             // 
             // groupBox1
             // 
