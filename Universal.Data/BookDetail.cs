@@ -54,6 +54,33 @@ namespace Universal.Data
         }
     }
 
+    public class BookDetailCompare : IEqualityComparer<BookDetail>
+    {
+        public bool Equals(BookDetail a, BookDetail b)
+        {
+            if (Object.ReferenceEquals(a, b))
+                return true;
+            if (Object.ReferenceEquals(a, null) || Object.ReferenceEquals(b, null))
+                return false;
+            return a.BookInfo.Name == b.BookInfo.Name
+                && a.BookInfo.Author == b.BookInfo.Author
+                && a.BookInfo.PublishingCompany == b.BookInfo.PublishingCompany;
+        }
+
+        public int GetHashCode(BookDetail book)
+        {
+            if (Object.ReferenceEquals(book, null)) return 0;
+
+            Func<string, int> getHash = (str) => {return str == null ? 0 : str.GetHashCode(); };
+
+            int hashName = getHash(book.BookInfo.Name);
+            int hashAuthor = getHash(book.BookInfo.Author);
+            int hashPress = getHash(book.BookInfo.PublishingCompany);
+
+            return hashName ^ hashAuthor ^ hashPress;
+        }
+    }
+
     [Serializable] public class BookDetailList
     {
         public List<BookDetail> __list { get; set; }
@@ -65,18 +92,48 @@ namespace Universal.Data
         }
         public int getNextBID() { return nextBookID++; }
 
-        public void Add(BookDetail item) { __list.Add(item); }
+        public void Add(int id, BookDetail item) { item.BookID = id; __list.Add(item); }
 
-
-
-        public int Find(int id)
+        public void ReplaceTo(int id, BookDetail item)
         {
-            for (int i = 0; i < __list.Count; i++)
-            {
-                if (id == __list[i].BookID)
-                    return i;
-            }
-            return -1;
+            var result = from book in __list
+                         where book.BookID == id
+                         select book = item;
+        }
+
+        public bool isExist(int id)
+        {
+            var result = from book in __list
+                         where book.BookID == id
+                         select book.BookID;
+            return result.Count() != 0;
+        }
+
+        public bool isExist(string bookname, string author, string press)
+        {
+            var result = from book in __list
+                         where book.BookInfo.Name == bookname
+                         where book.BookInfo.Author == author
+                         where book.BookInfo.PublishingCompany == press
+                         select book.BookID;
+            return result.Count() != 0;
+        }
+
+        public bool tryFind(int id, out BookDetail res)
+        {
+            var result = from book in __list
+                         where book.BookID == id
+                         select book;
+            if (result == null) { res = null; return false; }
+            res = result.First();
+            return true;
+        }
+
+        public void MergeWith(BookDetailList another)
+        {
+            var sub = another.__list.Except<BookDetail>(__list, new BookDetailCompare());
+            foreach (var item in sub)
+                Add(getNextBID(), item);
         }
     }
 

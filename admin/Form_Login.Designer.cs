@@ -38,15 +38,15 @@
             this.button_Exit = new System.Windows.Forms.Button();
             this.button_Login = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.checkBox_Reg_isAdmin = new System.Windows.Forms.CheckBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.textBox_Reg_Name = new System.Windows.Forms.TextBox();
             this.button_Exit_Copy = new System.Windows.Forms.Button();
             this.textBox_Reg_Account = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.textBox_Reg_pwRaw = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.button_Reg = new System.Windows.Forms.Button();
-            this.label5 = new System.Windows.Forms.Label();
-            this.textBox_Reg_Name = new System.Windows.Forms.TextBox();
-            this.checkBox_Reg_isAdmin = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -157,6 +157,32 @@
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "注册账号";
             // 
+            // checkBox_Reg_isAdmin
+            // 
+            this.checkBox_Reg_isAdmin.AutoSize = true;
+            this.checkBox_Reg_isAdmin.Location = new System.Drawing.Point(105, 101);
+            this.checkBox_Reg_isAdmin.Name = "checkBox_Reg_isAdmin";
+            this.checkBox_Reg_isAdmin.Size = new System.Drawing.Size(96, 16);
+            this.checkBox_Reg_isAdmin.TabIndex = 3;
+            this.checkBox_Reg_isAdmin.Text = "是否为管理员";
+            this.checkBox_Reg_isAdmin.UseVisualStyleBackColor = true;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(10, 102);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(29, 12);
+            this.label5.TabIndex = 21;
+            this.label5.Text = "昵称";
+            // 
+            // textBox_Reg_Name
+            // 
+            this.textBox_Reg_Name.Location = new System.Drawing.Point(46, 99);
+            this.textBox_Reg_Name.Name = "textBox_Reg_Name";
+            this.textBox_Reg_Name.Size = new System.Drawing.Size(46, 21);
+            this.textBox_Reg_Name.TabIndex = 2;
+            // 
             // button_Exit_Copy
             // 
             this.button_Exit_Copy.Location = new System.Drawing.Point(114, 138);
@@ -209,32 +235,6 @@
             this.button_Reg.Text = "注册(&R)";
             this.button_Reg.UseVisualStyleBackColor = true;
             this.button_Reg.Click += new System.EventHandler(this.button_Reg_Click);
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(10, 102);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(29, 12);
-            this.label5.TabIndex = 21;
-            this.label5.Text = "昵称";
-            // 
-            // textBox_Reg_Name
-            // 
-            this.textBox_Reg_Name.Location = new System.Drawing.Point(46, 99);
-            this.textBox_Reg_Name.Name = "textBox_Reg_Name";
-            this.textBox_Reg_Name.Size = new System.Drawing.Size(46, 21);
-            this.textBox_Reg_Name.TabIndex = 2;
-            // 
-            // checkBox_Reg_isAdmin
-            // 
-            this.checkBox_Reg_isAdmin.AutoSize = true;
-            this.checkBox_Reg_isAdmin.Location = new System.Drawing.Point(105, 101);
-            this.checkBox_Reg_isAdmin.Name = "checkBox_Reg_isAdmin";
-            this.checkBox_Reg_isAdmin.Size = new System.Drawing.Size(96, 16);
-            this.checkBox_Reg_isAdmin.TabIndex = 3;
-            this.checkBox_Reg_isAdmin.Text = "是否为管理员";
-            this.checkBox_Reg_isAdmin.UseVisualStyleBackColor = true;
             // 
             // Form_Login
             // 

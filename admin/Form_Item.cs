@@ -44,10 +44,10 @@ namespace PublishServer
 
         private void OnPrint()
         {
-            this.labelBookID.Text = this.labelBookID.Text + " [" + __BookID.ToString() + "]";
+            this.labelBookID.Text += " [" + __BookID.ToString() + "]";
             this.Text = this.labelBookID.Text;
-            this.buttonUpdate.Enabled = false;
-            this.buttonOK.Enabled = false;
+            this.button_Update.Enabled = false;
+            this.button_OK.Enabled = false;
             if (book == null)
             {
                 this.Text = "*[新建] " + this.Text;
@@ -98,8 +98,8 @@ namespace PublishServer
 
         private void CanUpdate(object sender, EventArgs e)
         {
-            if (!this.buttonUpdate.Enabled)
-                this.buttonUpdate.Enabled = true;
+            if (!this.button_Update.Enabled)
+                this.button_Update.Enabled = true;
         }
 
         private void buttonUpdate_Click(object sender, EventArgs e)
@@ -184,8 +184,8 @@ namespace PublishServer
             
             book.BookPrint.IsColorful = this.radioButtonAye.Checked;
 
-            this.buttonOK.Enabled = true;
-            this.buttonUpdate.Enabled = false;
+            this.button_OK.Enabled = true;
+            this.button_Update.Enabled = false;
         }
 
         private void buttonOK_Click(object sender, EventArgs e)
@@ -197,7 +197,7 @@ namespace PublishServer
                 this.ReturnBook(this, e1);
                 this.DialogResult = System.Windows.Forms.DialogResult.OK;
             }
-            this.buttonOK.Enabled = false;
+            this.button_OK.Enabled = false;
         }
 
         private void buttonCancel_Click(object sender, EventArgs e)

@@ -93,6 +93,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClientTable.cs" />
+    <Compile Include="Form_ImportProgress.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form_ImportProgress.Designer.cs">
+      <DependentUpon>Form_ImportProgress.cs</DependentUpon>
+    </Compile>
     <Compile Include="Form_Item.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -116,6 +122,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="User.cs" />
     <Compile Include="UserSet.cs" />
+    <EmbeddedResource Include="Form_ImportProgress.resx">
+      <DependentUpon>Form_ImportProgress.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Form_Item.resx">
       <DependentUpon>Form_Item.cs</DependentUpon>
     </EmbeddedResource>
