@@ -81,5 +81,14 @@ namespace PublishServer
         {
             return Convert.ToString(userID) + " " + account + " " + name; 
         }
+
+        /// <summary>
+        /// 变更密码
+        /// </summary>
+        /// <param name="upw">已经加密的字符串</param>
+        public void ChangePWTo(string pwc)
+        {
+            password = pwc;
+        }
     }
 }

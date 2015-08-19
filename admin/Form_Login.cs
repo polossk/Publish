@@ -120,7 +120,7 @@ namespace PublishServer
                 return;
             }
             User client;
-            int idx = users.find(uac, out client);
+            int idx = users.Find(uac, out client);
             // 用户不存在
             if (idx == -1)
             {
@@ -192,7 +192,7 @@ namespace PublishServer
                 return;
             }
             User client;
-            int idx = users.find(uac, out client);
+            int idx = users.Find(uac, out client);
             // 用户已经存在
             if (idx >= 0)
             {
@@ -202,10 +202,10 @@ namespace PublishServer
             }
             // 正常注册流程
             upw = Cipher.md5Encrypt(upw);
-            int uid = users.getNewUID();
+            int uid = users.GetNewUID();
             bool isAdmin = checkBox_Reg_isAdmin.Checked;
             User one = new User(uid, uac, ucl, upw, isAdmin);
-            bool success = users.addUser(one);
+            bool success = users.AddUser(one);
             if (success)
             {
                 MessageBox.Show("用户[" + uac + "]注册成功。\n请登录。", "注册成功", MessageBoxButtons.OK);

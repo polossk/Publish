@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("教材补助经费评估软件 [管理员]")]
 [assembly: AssemblyDescription("教材补助经费评估软件 管理员端")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Nano Ware")]
+[assembly: AssemblyCompany("AntropoidesVirgo.NanoWare")]
 [assembly: AssemblyProduct("教材补助经费评估软件 [管理员]")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]

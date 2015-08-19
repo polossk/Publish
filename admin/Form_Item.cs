@@ -31,7 +31,7 @@ namespace PublishServer
             InitializeComponent();
             __BookID = bid;
             book = null;
-            OnPrint();
+            OnDisplay();
         }
 
         public Form_Item(BookDetail reff)
@@ -39,10 +39,10 @@ namespace PublishServer
             InitializeComponent();
             __BookID = reff.BookID;
             book = reff;
-            OnPrint();
+            OnDisplay();
         }
 
-        private void OnPrint()
+        private void OnDisplay()
         {
             this.labelBookID.Text += " [" + __BookID.ToString() + "]";
             this.Text = this.labelBookID.Text;

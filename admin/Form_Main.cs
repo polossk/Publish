@@ -17,6 +17,7 @@ using Universal.Net;
 using Universal.Global;
 using Universal.Data;
 using Microsoft.Office.Interop.Excel;
+using System.Runtime.InteropServices;
 
 namespace PublishServer
 {
@@ -53,6 +54,9 @@ namespace PublishServer
         Thread mutiSendThread;
         Thread mainRecvThread;
 
+        // 列表排序记录
+        int[] _Sort_Record = new int[16];
+
         public Form_Main()
         {
             InitializeComponent();
@@ -67,20 +71,22 @@ namespace PublishServer
                 + "uesrs.dat";
             FileInfo fi = new FileInfo(rtUserPath);
             if (fi.Exists)
-                loadUsersData(rtUserPath);
+                LoadUsersData(rtUserPath);
             else
             {
                 FileStream fs = fi.Create();
                 fs.Close();
                 users = new UserSet();
-                saveUsersData(rtUserPath);
+                SaveUsersData(rtUserPath);
             }
 
             // 调整窗口属性
             string uid = Registry.ReadKey4Registry("PublishServer", "CurrentUserID");
+            int idNumeric = int.Parse(uid);
+            uid = idNumeric.ToString("D6");
             string uac = Registry.ReadKey4Registry("PublishServer", "CurrentUserAccount");
             string ucl = Registry.ReadKey4Registry("PublishServer", "CurrentUserName");
-            this.Text = "教材补助经费评估软件 [" + ucl + "]" + " [#" + Convert.ToString(uid) + "]";
+            this.Text = "教材补助经费评估软件 [" + ucl + "]" + " [#" + uid + "]";
 
             // 开始 UDP 广播
             backgroundServer = new UDPMessage();
@@ -135,6 +141,8 @@ namespace PublishServer
             listView_Books.Columns.Add("lstPrintCnts", "册数");
             listView_Books.Columns.Add("lstPrintPapr", "正文用纸");
             listView_Books.Columns.Add("lstPrintColr", "是否彩印");
+            listView_Books.ListViewItemSorter = new ListViewBooksSorter();
+            for (int i = 0; i < _Sort_Record.Length; i++) _Sort_Record[i] = 0;
         }
 
         private void SetWidthListViewBooks(int val)
@@ -161,7 +169,7 @@ namespace PublishServer
         /// <param name="e"></param>
         private void Form_Main_FormClosing(object sender, System.Windows.Forms.FormClosingEventArgs e)
         {
-            saveUsersData(rtUserPath);
+            SaveUsersData(rtUserPath);
             tcpServerLogin.Stop();
         }
 
@@ -212,7 +220,7 @@ namespace PublishServer
         public void OnClientLogin(ref IPAddress where, ref string[] result, out string answer)
         {
             User client; answer = VerMessage.DEFAULT_RESPONSE;
-            int idx = users.find(result[1], out client);
+            int idx = users.Find(result[1], out client);
             // 用户不存在
             if (idx == -1)
             {
@@ -241,7 +249,7 @@ namespace PublishServer
         public void OnClientReg(ref string[] result, out string answer)
         {
             User client; answer = VerMessage.DEFAULT_RESPONSE;
-            int idx = users.find(result[1], out client);
+            int idx = users.Find(result[1], out client);
             // 用户已经存在
             if (idx >= 0)
             {
@@ -249,13 +257,13 @@ namespace PublishServer
                 return;
             }
             // 正常注册流程
-            int uid = users.getNewUID();
+            int uid = users.GetNewUID();
             User one = new User(uid, result[1], result[3], result[2]);
-            bool success = users.addUser(one);
+            bool success = users.AddUser(one);
             if (success)
             {
                 answer = VerMessage.REG_SUCCESS;
-                saveUsersData(rtUserPath);
+                SaveUsersData(rtUserPath);
             }
             else
                 answer = VerMessage.REG_FAILED_OTHER_PROBLEM;
@@ -264,7 +272,7 @@ namespace PublishServer
         public void OnClientLogoff(ref string[] result, out string answer)
         {
             User client; answer = VerMessage.DEFAULT_RESPONSE;
-            int idx = users.find(result[1], out client);
+            int idx = users.Find(result[1], out client);
             if (idx == -1)
             {
                 answer = VerMessage.LOGOFF_FAILED_NO_SUCH_USER;
@@ -336,7 +344,7 @@ namespace PublishServer
         /// 从文件读取当前的账户信息
         /// </summary>
         /// <param name="path">文件路径</param>
-        private void loadUsersData(string path)
+        private void LoadUsersData(string path)
         {
             FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             BinaryReader rd = new BinaryReader(fileStream);
@@ -357,7 +365,7 @@ namespace PublishServer
         /// 存储新的用户登录信息
         /// </summary>
         /// <param name="path">文件路径</param>
-        private void saveUsersData(string path)
+        private void SaveUsersData(string path)
         {
             FileStream fileStream = new FileStream(path, FileMode.Create);
             byte[] serBytes;
@@ -374,7 +382,7 @@ namespace PublishServer
             Registry.AddKey2Registry("PublishServer\\Encrypt", "InitVector", iv);
         }
 
-        private void refreshAllBookList()
+        private void RefreshAllBookList(bool isClearAll = false)
         {
             listView_Books.Items.Clear();
             foreach (var item in bList.__list)
@@ -390,13 +398,16 @@ namespace PublishServer
                     tar.SubItems.Add(item.BookPrint._rawData_[j - 1]);
                 }
             }
-            SetWidthListViewBooks(-2);
+            if (isClearAll)
+                SetWidthListViewBooks(60);
+            else
+                SetWidthListViewBooks(-2);
         }
 
         private void openExcelFileDialog_FileOk(object sender, CancelEventArgs e)
         {
             TryOpenExcel(openExcelFileDialog.FileName);
-            refreshAllBookList();
+            RefreshAllBookList();
         }
 
         private void buttonOpenExcelFile_Click(object sender, EventArgs e)
@@ -469,14 +480,14 @@ namespace PublishServer
                 bList.ReplaceTo(id, tmp);
                 BookDetail now; bList.tryFind(id, out now);
                 // 重新整理内容到 ListView
-                refreshBookList(ref now, ref line);
+                RefreshBookList(ref now, ref line);
             };
             item.ShowDialog();
         }
 
         private void button_Add_Click(object sender, EventArgs e)
         {
-            int cur = bList.getNextBID();
+            int cur = bList.nextBookID;
             Form_Item item = new Form_Item(cur);
             item.ReturnBook += (o, e1) =>
             {
@@ -484,18 +495,18 @@ namespace PublishServer
                 now.BookInfo.buildRawData();
                 now.BookPrint.buildRawData();
                 // 填充到 BookList
-                bList.Add(cur, now);
+                bList.Add(cur, now, true);
                 // 重新整理内容到 ListView
                 ListViewItem line = listView_Books.Items.Add(cur.ToString());
                 for (int i = 0; i < 12; i++) line.SubItems.Add("");
-                refreshBookList(ref now, ref line);
+                RefreshBookList(ref now, ref line);
                 if (listView_Books.Items.Count <= 1)
                     SetWidthListViewBooks(-2);
             };
             item.ShowDialog();
         }
 
-        private void refreshBookList(ref BookDetail now, ref ListViewItem line)
+        private void RefreshBookList(ref BookDetail now, ref ListViewItem line)
         {
             for (int i = 0; i < 6; i++)
             {
@@ -506,15 +517,96 @@ namespace PublishServer
                 line.SubItems[7 + i].Text = now.BookPrint._rawData_[i];
             }
         }
+        #region 添加右键菜单 前值准备部分
+        // The area occupied by the ListView header. 
+        private System.Drawing.Rectangle _headerRect;
 
-        private void tSMI_Modify_Click(object sender, EventArgs e)
+        // Delegate that is called for each child window of the ListView. 
+        private delegate bool EnumWinCallBack(IntPtr hwnd, IntPtr lParam);
+
+        // Calls EnumWinCallBack for each child window of hWndParent (i.e. the ListView).
+        [DllImport("user32.Dll")]
+        private static extern int EnumChildWindows(
+            IntPtr hWndParent,
+            EnumWinCallBack callBackFunc,
+            IntPtr lParam);
+
+        // Gets the bounding rectangle of the specified window (ListView header bar). 
+        [DllImport("user32.dll")]
+        private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct RECT
         {
-            // TODO
+            public int Left;
+            public int Top;
+            public int Right;
+            public int Bottom;
         }
+
+        // This should get called with the only child window of the ListView,
+        // which should be the header bar.
+        private bool EnumWindowCallBack(IntPtr hwnd, IntPtr lParam)
+        {
+            // Determine the rectangle of the ListView header bar and save it in _headerRect.
+            RECT rct;
+            if (!GetWindowRect(hwnd, out rct))
+            {
+                _headerRect = System.Drawing.Rectangle.Empty;
+            }
+            else
+            {
+                _headerRect = new System.Drawing.Rectangle(
+                rct.Left, rct.Top, rct.Right - rct.Left, rct.Bottom - rct.Top);
+            }
+            return false; // Stop the enum
+        }
+
+        #endregion
+
+        private void contextMenuStrip_BookList_Opening(object sender, CancelEventArgs e)
+        {
+            // This call indirectly calls EnumWindowCallBack which sets _headerRect
+            // to the area occupied by the ListView's header bar.
+            EnumChildWindows(
+                this.listView_Books.Handle, new EnumWinCallBack(EnumWindowCallBack), IntPtr.Zero);
+
+            // If the mouse position is in the header bar, cancel the display
+            // of the regular context menu and display the column header context 
+            // menu instead.
+            if (_headerRect.Contains(Control.MousePosition))
+            {
+                this.tSMI_Sendto.Enabled = false;
+                this.tSMI_Modify.Enabled = false;
+                this.tSMI_Delete.Enabled = false;
+                this.tSMI_ClearAll.Enabled = this.listView_Books.Items.Count != 0;
+            }
+            else
+            {
+                this.tSMI_Sendto.Enabled = this.listView_Books.SelectedItems.Count >= 1;
+                this.tSMI_Modify.Enabled = this.listView_Books.SelectedItems.Count == 1;
+                this.tSMI_Delete.Enabled = this.listView_Books.SelectedItems.Count >= 1;
+                this.tSMI_ClearAll.Enabled = this.listView_Books.Items.Count != 0;
+            }
+        }
+
+        
 
         private void button_User_Click(object sender, EventArgs e)
         {
             // TODO
+            // 找到用户并且调用
+            User person;
+            string uac = Registry.ReadKey4Registry("PublishServer", "CurrentUserAccount");
+            users.Find(uac, out person);
+            Form_User user = new Form_User(person);
+            user.ReturnUser += (o, e1) =>
+            {
+                User now = user.me;
+                users.ReplaceTo(uac, now);
+                SaveUsersData(rtUserPath);
+            };
+            user.ShowDialog();
         }
 
         private void saveDataFileDialog_FileOk(object sender, CancelEventArgs e)
@@ -552,7 +644,7 @@ namespace PublishServer
             fileStream.Dispose();
             // 合并数据表
             bList.MergeWith(another);
-            refreshAllBookList();
+            RefreshAllBookList();
         }
 
         private void button_BookListLoad_Click(object sender, EventArgs e)
@@ -560,6 +652,83 @@ namespace PublishServer
             this.openDataFileDialog.InitialDirectory = Directory.GetCurrentDirectory();
             this.openDataFileDialog.ShowDialog();
         }
+
+        private void button_About_Click(object sender, EventArgs e)
+        {
+            AboutBox about = new AboutBox();
+            about.ShowDialog();
+        }
+
+        
+        private void listViewBooks_ColumnClick(object sender, ColumnClickEventArgs e)
+        {
+            if (listView_Books.Items.Count == 0) return;
+            System.Windows.Forms.ListView lv = sender as System.Windows.Forms.ListView;
+            _Sort_Record[e.Column] = (_Sort_Record[e.Column] + 1) % 3;
+            for (int i = 0; i < listView_Books.Columns.Count; i++)
+                this.listView_Books.Columns[i].Text = 
+                    this.listView_Books.Columns[i].Text.Trim((char)0x25bc, (char)0x25b2, ' ');
+            string Asc = ((char)0x25b2).ToString().PadLeft(2, ' ');
+            string Des = ((char)0x25bc).ToString().PadLeft(2, ' ');
+            string lable = this.listView_Books.Columns[e.Column].Text;
+
+
+            switch (_Sort_Record[e.Column])
+            {
+                case 0: // 默认 BookID 排序
+                    // this.listView_Books.Columns[e.Column].Text = lable;
+                    (lv.ListViewItemSorter as ListViewBooksSorter).SortColumn = 0;
+                    (lv.ListViewItemSorter as ListViewBooksSorter).Order = System.Windows.Forms.SortOrder.Ascending;
+                    break;
+                case 1: // 当前列升序
+                    this.listView_Books.Columns[e.Column].Text = lable + Asc;
+                    (lv.ListViewItemSorter as ListViewBooksSorter).SortColumn = e.Column;
+                    (lv.ListViewItemSorter as ListViewBooksSorter).Order = System.Windows.Forms.SortOrder.Ascending;
+                    break;
+                case 2: // 当前列降序
+                    this.listView_Books.Columns[e.Column].Text = lable + Des;
+                    (lv.ListViewItemSorter as ListViewBooksSorter).SortColumn = e.Column;
+                    (lv.ListViewItemSorter as ListViewBooksSorter).Order = System.Windows.Forms.SortOrder.Descending;
+                    break;
+                default: break;
+            }
+            ((System.Windows.Forms.ListView)sender).Sort();
+            SetWidthListViewBooks(-2);
+        }
+
+        private void tSMI_Add_Click(object sender, EventArgs e)
+        {
+            button_Add_Click(sender, e);
+        }
+
+        private void tSMI_Modify_Click(object sender, EventArgs e)
+        {
+            listViewBooks_DoubleClick(sender, e);
+        }
+
+        private void tSMI_Delete_Click(object sender, EventArgs e)
+        {
+            int lineNumber = this.listView_Books.SelectedIndices[0];
+            var line = this.listView_Books.Items[lineNumber];
+            string bid = line.SubItems[0].Text;
+            int id = int.Parse(bid);
+            BookDetail book;
+            if (!bList.tryFind(id, out book)) return;
+            bList.__list.Remove(book);
+            RefreshAllBookList();
+        }
+
+        private void tSMI_ClearAll_Click(object sender, EventArgs e)
+        {
+            bList.ClearAll();
+            ResetListViewBooks();
+        }
+
+        private void tSMI_Sendto_Click(object sender, EventArgs e)
+        {
+
+        }
+
 
         
     }

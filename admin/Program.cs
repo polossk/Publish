@@ -17,9 +17,10 @@ namespace PublishServer
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             /*
-            <--! DEBUG ONLY !-->
-            Application.Run(new Form_Item());
+            /// <--! DEBUG ONLY !-->
+            Application.Run(new Form_Main());
             */
+
             
             Form_Login login = new Form_Login();
             login.ShowDialog();
@@ -27,7 +28,7 @@ namespace PublishServer
             {
                 Application.Run(new Form_Main());
             }
-
+            
             
         }
     }

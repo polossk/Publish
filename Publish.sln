@@ -21,8 +21,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Universal.Data", "Universal
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "_TEST_EXCEL", "_TEST_EXCEL\_TEST_EXCEL.csproj", "{EE368D6D-BE80-4566-9DBE-64EA00F375C7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "_TEST_LINQ_MERGE", "_TEST_LINQ_MERGE\_TEST_LINQ_MERGE.csproj", "{D49457AA-26D1-4ABE-BBE4-EE1BBA13214E}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -66,10 +64,6 @@ Global
 		{EE368D6D-BE80-4566-9DBE-64EA00F375C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EE368D6D-BE80-4566-9DBE-64EA00F375C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EE368D6D-BE80-4566-9DBE-64EA00F375C7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D49457AA-26D1-4ABE-BBE4-EE1BBA13214E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D49457AA-26D1-4ABE-BBE4-EE1BBA13214E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D49457AA-26D1-4ABE-BBE4-EE1BBA13214E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D49457AA-26D1-4ABE-BBE4-EE1BBA13214E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

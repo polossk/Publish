@@ -92,7 +92,18 @@ namespace Universal.Data
         }
         public int getNextBID() { return nextBookID++; }
 
-        public void Add(int id, BookDetail item) { item.BookID = id; __list.Add(item); }
+        public void ClearAll()
+        {
+            __list = new List<BookDetail>();
+            nextBookID = 1;
+        }
+
+        public void Add(int id, BookDetail item, bool isManual = false)
+        {
+            item.BookID = id;
+            __list.Add(item);
+            nextBookID += isManual ? 1 : 0;
+        }
 
         public void ReplaceTo(int id, BookDetail item)
         {
