@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Universal.Global.Global.dll")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Nano Ware")]
+[assembly: AssemblyCompany("AntropoidesVirgo.NanoWare")]
 [assembly: AssemblyProduct("Universal.Global.Global.dll")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]

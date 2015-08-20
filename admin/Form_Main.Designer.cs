@@ -36,8 +36,8 @@
             this.button_Add = new System.Windows.Forms.Button();
             this.button_Import = new System.Windows.Forms.Button();
             this.button_BookListSave = new System.Windows.Forms.Button();
-            this.button_Export = new System.Windows.Forms.Button();
             this.button_BookListLoad = new System.Windows.Forms.Button();
+            this.button_Export = new System.Windows.Forms.Button();
             this.listView_Books = new System.Windows.Forms.ListView();
             this.contextMenuStrip_BookList = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tSMI_Sendto = new System.Windows.Forms.ToolStripMenuItem();
@@ -82,15 +82,14 @@
             this.tableLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tableLayoutPanel1.ColumnCount = 3;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanel1.ColumnCount = 2;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
             this.tableLayoutPanel1.Controls.Add(this.button_Add, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.button_Import, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.button_BookListSave, 0, 2);
-            this.tableLayoutPanel1.Controls.Add(this.button_Export, 1, 3);
-            this.tableLayoutPanel1.Controls.Add(this.button_BookListLoad, 1, 2);
+            this.tableLayoutPanel1.Controls.Add(this.button_BookListSave, 1, 0);
+            this.tableLayoutPanel1.Controls.Add(this.button_BookListLoad, 1, 1);
+            this.tableLayoutPanel1.Controls.Add(this.button_Export, 0, 3);
             this.tableLayoutPanel1.Location = new System.Drawing.Point(6, 18);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 4;
@@ -104,16 +103,17 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(342, 148);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(283, 151);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // button_Add
             // 
             this.button_Add.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
-            this.button_Add.Location = new System.Drawing.Point(17, 3);
+            this.button_Add.Location = new System.Drawing.Point(31, 5);
+            this.button_Add.Margin = new System.Windows.Forms.Padding(5);
             this.button_Add.Name = "button_Add";
-            this.button_Add.Size = new System.Drawing.Size(79, 31);
-            this.button_Add.TabIndex = 2;
+            this.button_Add.Size = new System.Drawing.Size(79, 27);
+            this.button_Add.TabIndex = 0;
             this.button_Add.Text = "新增条目(&N)";
             this.button_Add.UseVisualStyleBackColor = true;
             this.button_Add.Click += new System.EventHandler(this.button_Add_Click);
@@ -121,10 +121,11 @@
             // button_Import
             // 
             this.button_Import.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
-            this.button_Import.Location = new System.Drawing.Point(17, 40);
+            this.button_Import.Location = new System.Drawing.Point(31, 42);
+            this.button_Import.Margin = new System.Windows.Forms.Padding(5);
             this.button_Import.Name = "button_Import";
-            this.button_Import.Size = new System.Drawing.Size(79, 31);
-            this.button_Import.TabIndex = 0;
+            this.button_Import.Size = new System.Drawing.Size(79, 27);
+            this.button_Import.TabIndex = 1;
             this.button_Import.Text = "导入数据(&I)";
             this.button_Import.UseVisualStyleBackColor = true;
             this.button_Import.Click += new System.EventHandler(this.buttonOpenExcelFile_Click);
@@ -132,34 +133,37 @@
             // button_BookListSave
             // 
             this.button_BookListSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
-            this.button_BookListSave.Location = new System.Drawing.Point(17, 77);
+            this.button_BookListSave.Location = new System.Drawing.Point(172, 5);
+            this.button_BookListSave.Margin = new System.Windows.Forms.Padding(5);
             this.button_BookListSave.Name = "button_BookListSave";
-            this.button_BookListSave.Size = new System.Drawing.Size(79, 31);
-            this.button_BookListSave.TabIndex = 3;
+            this.button_BookListSave.Size = new System.Drawing.Size(79, 27);
+            this.button_BookListSave.TabIndex = 2;
             this.button_BookListSave.Text = "保存数据(&S)";
             this.button_BookListSave.UseVisualStyleBackColor = true;
             this.button_BookListSave.Click += new System.EventHandler(this.button_BookListSave_Click);
             // 
-            // button_Export
-            // 
-            this.button_Export.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
-            this.button_Export.Location = new System.Drawing.Point(131, 114);
-            this.button_Export.Name = "button_Export";
-            this.button_Export.Size = new System.Drawing.Size(79, 31);
-            this.button_Export.TabIndex = 1;
-            this.button_Export.Text = "导出结果(&E)";
-            this.button_Export.UseVisualStyleBackColor = true;
-            // 
             // button_BookListLoad
             // 
             this.button_BookListLoad.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
-            this.button_BookListLoad.Location = new System.Drawing.Point(131, 77);
+            this.button_BookListLoad.Location = new System.Drawing.Point(172, 42);
+            this.button_BookListLoad.Margin = new System.Windows.Forms.Padding(5);
             this.button_BookListLoad.Name = "button_BookListLoad";
-            this.button_BookListLoad.Size = new System.Drawing.Size(79, 31);
-            this.button_BookListLoad.TabIndex = 4;
+            this.button_BookListLoad.Size = new System.Drawing.Size(79, 27);
+            this.button_BookListLoad.TabIndex = 3;
             this.button_BookListLoad.Text = "加载数据(&L)";
             this.button_BookListLoad.UseVisualStyleBackColor = true;
             this.button_BookListLoad.Click += new System.EventHandler(this.button_BookListLoad_Click);
+            // 
+            // button_Export
+            // 
+            this.button_Export.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
+            this.button_Export.Location = new System.Drawing.Point(31, 116);
+            this.button_Export.Margin = new System.Windows.Forms.Padding(5);
+            this.button_Export.Name = "button_Export";
+            this.button_Export.Size = new System.Drawing.Size(79, 30);
+            this.button_Export.TabIndex = 4;
+            this.button_Export.Text = "导出结果(&E)";
+            this.button_Export.UseVisualStyleBackColor = true;
             // 
             // listView_Books
             // 
@@ -169,8 +173,8 @@
             this.listView_Books.GridLines = true;
             this.listView_Books.Location = new System.Drawing.Point(3, 17);
             this.listView_Books.Name = "listView_Books";
-            this.listView_Books.Size = new System.Drawing.Size(877, 637);
-            this.listView_Books.TabIndex = 1;
+            this.listView_Books.Size = new System.Drawing.Size(834, 637);
+            this.listView_Books.TabIndex = 0;
             this.listView_Books.UseCompatibleStateImageBehavior = false;
             this.listView_Books.View = System.Windows.Forms.View.Details;
             this.listView_Books.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.listViewBooks_ColumnClick);
@@ -187,7 +191,7 @@
             this.toolStripSeparator2,
             this.tSMI_ClearAll});
             this.contextMenuStrip_BookList.Name = "contextMenuStrip_BookList";
-            this.contextMenuStrip_BookList.Size = new System.Drawing.Size(163, 148);
+            this.contextMenuStrip_BookList.Size = new System.Drawing.Size(163, 126);
             this.contextMenuStrip_BookList.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip_BookList_Opening);
             // 
             // tSMI_Sendto
@@ -243,8 +247,8 @@
             this.groupBox1.Controls.Add(this.listView_Books);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(883, 657);
-            this.groupBox1.TabIndex = 2;
+            this.groupBox1.Size = new System.Drawing.Size(840, 657);
+            this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "教材列表";
             // 
@@ -254,9 +258,9 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox2.Controls.Add(this.tableLayoutPanel1);
-            this.groupBox2.Location = new System.Drawing.Point(901, 497);
+            this.groupBox2.Location = new System.Drawing.Point(858, 494);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(351, 172);
+            this.groupBox2.Size = new System.Drawing.Size(292, 175);
             this.groupBox2.TabIndex = 3;
             this.groupBox2.TabStop = false;
             // 
@@ -265,10 +269,10 @@
             this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox3.Controls.Add(this.listView_Users);
-            this.groupBox3.Location = new System.Drawing.Point(901, 216);
+            this.groupBox3.Location = new System.Drawing.Point(858, 216);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(351, 275);
-            this.groupBox3.TabIndex = 4;
+            this.groupBox3.Size = new System.Drawing.Size(292, 275);
+            this.groupBox3.TabIndex = 2;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "登陆用户列表";
             // 
@@ -279,7 +283,7 @@
             this.listView_Users.GridLines = true;
             this.listView_Users.Location = new System.Drawing.Point(3, 17);
             this.listView_Users.Name = "listView_Users";
-            this.listView_Users.Size = new System.Drawing.Size(345, 255);
+            this.listView_Users.Size = new System.Drawing.Size(286, 255);
             this.listView_Users.TabIndex = 0;
             this.listView_Users.UseCompatibleStateImageBehavior = false;
             this.listView_Users.View = System.Windows.Forms.View.Details;
@@ -293,20 +297,20 @@
             this.groupBox4.Controls.Add(this.label_AdminTitle);
             this.groupBox4.Controls.Add(this.button_User);
             this.groupBox4.Controls.Add(this.pictureBox1);
-            this.groupBox4.Location = new System.Drawing.Point(901, 12);
+            this.groupBox4.Location = new System.Drawing.Point(858, 12);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(351, 198);
-            this.groupBox4.TabIndex = 5;
+            this.groupBox4.Size = new System.Drawing.Size(292, 198);
+            this.groupBox4.TabIndex = 1;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "用户信息";
             // 
             // button_About
             // 
             this.button_About.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_About.Location = new System.Drawing.Point(266, 160);
+            this.button_About.Location = new System.Drawing.Point(207, 160);
             this.button_About.Name = "button_About";
             this.button_About.Size = new System.Drawing.Size(79, 23);
-            this.button_About.TabIndex = 5;
+            this.button_About.TabIndex = 3;
             this.button_About.Text = "关于软件(&A)";
             this.button_About.UseVisualStyleBackColor = true;
             this.button_About.Click += new System.EventHandler(this.button_About_Click);
@@ -316,9 +320,9 @@
             this.label_AdminName.AutoSize = true;
             this.label_AdminName.Location = new System.Drawing.Point(181, 64);
             this.label_AdminName.Name = "label_AdminName";
-            this.label_AdminName.Size = new System.Drawing.Size(35, 12);
-            this.label_AdminName.TabIndex = 4;
-            this.label_AdminName.Text = "admin";
+            this.label_AdminName.Size = new System.Drawing.Size(107, 12);
+            this.label_AdminName.TabIndex = 1;
+            this.label_AdminName.Text = "超级管理员polossk";
             // 
             // label_AdminTitle
             // 
@@ -326,16 +330,16 @@
             this.label_AdminTitle.Location = new System.Drawing.Point(181, 40);
             this.label_AdminTitle.Name = "label_AdminTitle";
             this.label_AdminTitle.Size = new System.Drawing.Size(41, 12);
-            this.label_AdminTitle.TabIndex = 3;
+            this.label_AdminTitle.TabIndex = 0;
             this.label_AdminTitle.Text = "管理员";
             // 
             // button_User
             // 
             this.button_User.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_User.Location = new System.Drawing.Point(181, 160);
+            this.button_User.Location = new System.Drawing.Point(207, 131);
             this.button_User.Name = "button_User";
             this.button_User.Size = new System.Drawing.Size(79, 23);
-            this.button_User.TabIndex = 1;
+            this.button_User.TabIndex = 2;
             this.button_User.Text = "用户信息(&U)";
             this.button_User.UseVisualStyleBackColor = true;
             this.button_User.Click += new System.EventHandler(this.button_User_Click);
@@ -367,8 +371,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(1264, 681);
+            this.ClientSize = new System.Drawing.Size(1162, 681);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox3);

@@ -1,4 +1,4 @@
-﻿namespace PublishServer
+﻿namespace PublishClient
 {
     partial class Form_User
     {

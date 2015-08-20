@@ -11,6 +11,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Collections;
 using Universal.Global;
+using Universal.User;
 
 namespace PublishServer
 {
@@ -31,7 +32,7 @@ namespace PublishServer
         private void Form_Login_Load(object sender, EventArgs e)
         {
             rtUserPath = System.AppDomain.CurrentDomain.SetupInformation.ApplicationBase
-                + "uesrs.dat";
+                + "uesrs.bin";
             FileInfo fi = new FileInfo(rtUserPath);
             if (fi.Exists)
                 loadUsersData(rtUserPath);

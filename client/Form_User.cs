@@ -11,7 +11,7 @@ using Universal.Data;
 using Universal.Global;
 using Universal.User;
 
-namespace PublishServer
+namespace PublishClient
 {
     public partial class Form_User : Form
     {

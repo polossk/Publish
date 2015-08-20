@@ -19,7 +19,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Universal.Global", "Univers
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Universal.Data", "Universal.Data\Universal.Data.csproj", "{07425296-474C-4261-AFEF-5697921F796E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "_TEST_EXCEL", "_TEST_EXCEL\_TEST_EXCEL.csproj", "{EE368D6D-BE80-4566-9DBE-64EA00F375C7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Universal.User", "Universal.User\Universal.User.csproj", "{9BAF830F-EF65-4CC6-88A5-1CBFECAE6774}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -60,10 +60,10 @@ Global
 		{07425296-474C-4261-AFEF-5697921F796E}.Debug|Any CPU.Build.0 = Release|Any CPU
 		{07425296-474C-4261-AFEF-5697921F796E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{07425296-474C-4261-AFEF-5697921F796E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EE368D6D-BE80-4566-9DBE-64EA00F375C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EE368D6D-BE80-4566-9DBE-64EA00F375C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EE368D6D-BE80-4566-9DBE-64EA00F375C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EE368D6D-BE80-4566-9DBE-64EA00F375C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BAF830F-EF65-4CC6-88A5-1CBFECAE6774}.Debug|Any CPU.ActiveCfg = Release|Any CPU
+		{9BAF830F-EF65-4CC6-88A5-1CBFECAE6774}.Debug|Any CPU.Build.0 = Release|Any CPU
+		{9BAF830F-EF65-4CC6-88A5-1CBFECAE6774}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BAF830F-EF65-4CC6-88A5-1CBFECAE6774}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

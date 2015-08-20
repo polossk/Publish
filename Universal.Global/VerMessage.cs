@@ -23,5 +23,7 @@ namespace Universal.Global
         public static string LOGOFF_FAILED_NOT_LOGIN    = "LogoffFailedNotLogin";
         public static string LOGOFF_FAILED              = "LogoffFailed";
         public static string DEFAULT_RESPONSE           = "NOP";
+        public static string CHANGE_SUCCESS             = "ChangeSuccess";
+        public static string CHANGE_FAILED              = "ChangeFailed";
     }
 }

@@ -123,6 +123,12 @@
     <Compile Include="Form_Login.Designer.cs">
       <DependentUpon>Form_Login.cs</DependentUpon>
     </Compile>
+    <Compile Include="Form_SendTo.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form_SendTo.Designer.cs">
+      <DependentUpon>Form_SendTo.cs</DependentUpon>
+    </Compile>
     <Compile Include="Form_User.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -133,8 +139,6 @@
     <Compile Include="NotStatic.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="User.cs" />
-    <Compile Include="UserSet.cs" />
     <EmbeddedResource Include="AboutBox.resx">
       <DependentUpon>AboutBox.cs</DependentUpon>
     </EmbeddedResource>
@@ -149,6 +153,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Form_Main.resx">
       <DependentUpon>Form_Main.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Form_SendTo.resx">
+      <DependentUpon>Form_SendTo.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Form_User.resx">
       <DependentUpon>Form_User.cs</DependentUpon>
@@ -215,6 +222,10 @@
     <ProjectReference Include="..\Universal.Net.UDPMessage\Universal.Net.UDPMessage.csproj">
       <Project>{3526eba4-a535-4290-ac7e-8f6de5bdf2fe}</Project>
       <Name>Universal.Net.UDPMessage</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Universal.User\Universal.User.csproj">
+      <Project>{9baf830f-ef65-4cc6-88a5-1cbfecae6774}</Project>
+      <Name>Universal.User</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

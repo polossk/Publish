@@ -183,4 +183,10 @@ namespace Universal.Data
         }
     }
 
+    [Serializable] public class BookInformationList
+    {
+        public List<BookInformation> Data { get; set; }
+        public BookInformationList() {}
+    }
+
 }

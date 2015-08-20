@@ -16,6 +16,7 @@ using System.Net.Sockets;
 using Universal.Net;
 using Universal.Global;
 using Universal.Data;
+using Universal.User;
 using Microsoft.Office.Interop.Excel;
 using System.Runtime.InteropServices;
 
@@ -29,6 +30,7 @@ namespace PublishServer
         // 用户信息
         UserSet users;
         string rtUserPath;
+        string uid, uac, ucl;
 
         // 登陆用户信息
         ClientTable onlineUsers;
@@ -42,8 +44,6 @@ namespace PublishServer
         TcpClientP      tcpClientUserFile;      // 56655
         TcpListenerP    tcpServerRecvMessage;   // 58888
         TcpClientP      tcpClientSendMessage;   // 59999
-        TcpClientP      tcpClientBroadcast;     // 59966
-        TcpClientP      tcpClientBookInfo;      // 56677
         TcpListenerP    tcpServerBookEvau;      // 56688
 
         // 网络相关线程列表
@@ -51,7 +51,6 @@ namespace PublishServer
         Thread loginThread;
         Thread recvThread;
         Thread sendThread;
-        Thread mutiSendThread;
         Thread mainRecvThread;
 
         // 列表排序记录
@@ -68,7 +67,7 @@ namespace PublishServer
             onlineUsers = new ClientTable();
             // 加载用户列表
             rtUserPath = System.AppDomain.CurrentDomain.SetupInformation.ApplicationBase
-                + "uesrs.dat";
+                + "uesrs.bin";
             FileInfo fi = new FileInfo(rtUserPath);
             if (fi.Exists)
                 LoadUsersData(rtUserPath);
@@ -81,11 +80,11 @@ namespace PublishServer
             }
 
             // 调整窗口属性
-            string uid = Registry.ReadKey4Registry("PublishServer", "CurrentUserID");
+            uid = Registry.ReadKey4Registry("PublishServer", "CurrentUserID");
             int idNumeric = int.Parse(uid);
             uid = idNumeric.ToString("D6");
-            string uac = Registry.ReadKey4Registry("PublishServer", "CurrentUserAccount");
-            string ucl = Registry.ReadKey4Registry("PublishServer", "CurrentUserName");
+            uac = Registry.ReadKey4Registry("PublishServer", "CurrentUserAccount");
+            ucl = Registry.ReadKey4Registry("PublishServer", "CurrentUserName");
             this.Text = "教材补助经费评估软件 [" + ucl + "]" + " [#" + uid + "]";
 
             // 开始 UDP 广播
@@ -107,24 +106,66 @@ namespace PublishServer
             this.label_AdminName.Text = ucl;
 
             // 所有 TCP 监听端口就绪
-            tcpServerLogin = new TcpListenerP(new IPEndPoint(IPAddress.Any, 56666));
+            tcpServerLogin = new TcpListenerP(new IPEndPoint(IPAddress.Any, Port.TCP_LOGIN_PORT));
             tcpServerLogin.OnThreadTaskRequest += new TcpListenerP.ThreadTaskRequest(OnListenClient);
+            tcpServerBookEvau = new TcpListenerP(new IPEndPoint(IPAddress.Any, Port.TCP_SERVERRECV_PORT));
 
-            // 初始化所有 TCP 客户端
-            tcpClientUserFile = new TcpClientP();
+
+            // 所有 TCP 客户端使用前初始化
+            // tcpClientUserFile = new TcpClientP();
 
             // 初始化教材列表
             bList = new BookDetailList();
 
-            // 初始化教材列表显示
-            ResetListViewBooks();
-
+            // 初始化列表显示
+            ResetListView_Books();
+            ResetListView_Users();
             
 
         }
 
+        private delegate void AddUserIntoToListView_dele(string uac, string ucl);
 
-        private void ResetListViewBooks()
+        private delegate void RemoveUserFromListView_dele(string uac);
+
+        public void AddUserIntoView(string uac, string ucl)
+        {
+            ListViewItem tar = listView_Users.Items.Add(uac);
+            tar.SubItems.Add(ucl);
+            SetWidthListView_Users(-2);
+        }
+
+        public void RemoveUserFromView(string uac)
+        {
+            for (int i = 0; i < listView_Users.Items.Count; i++ )
+            {
+                var item = listView_Users.Items[i];
+                if (item.SubItems[0].Text == uac)
+                {
+                    listView_Users.Items.RemoveAt(i);
+                    i--;
+                }
+            }
+            if (listView_Users.Items.Count == 0)
+                SetWidthListView_Users(60);
+        }
+
+
+        private void ResetListView_Users()
+        {
+            // 初始化用户列表显示
+            listView_Users.Clear();
+            listView_Users.Columns.Add("lstUac", "用户账号");
+            listView_Users.Columns.Add("lstUcl", "用户名");
+        }
+
+        private void SetWidthListView_Users(int val)
+        {
+            listView_Users.Columns["lstUac"].Width = val;
+            listView_Users.Columns["lstUcl"].Width = val;
+        }
+
+        private void ResetListView_Books()
         {
             // 初始化教材列表显示
             listView_Books.Clear();
@@ -145,7 +186,7 @@ namespace PublishServer
             for (int i = 0; i < _Sort_Record.Length; i++) _Sort_Record[i] = 0;
         }
 
-        private void SetWidthListViewBooks(int val)
+        private void SetWidthListView_Books(int val)
         {
         	listView_Books.Columns["lstBookID"].Width = val;
             listView_Books.Columns["lstInfoName"].Width = val;
@@ -171,11 +212,13 @@ namespace PublishServer
         {
             SaveUsersData(rtUserPath);
             tcpServerLogin.Stop();
+            tcpServerBookEvau.Stop();
+            System.Environment.Exit(0);
         }
 
         public void OnListen(object sender, EventArgs e)
         {
-            // TODO
+            // Template
             TcpClient tcpClient = sender as TcpClient;
             int threadID = 7777;
             Console.WriteLine("On Listen...");
@@ -217,7 +260,7 @@ namespace PublishServer
             }
         }
 
-        public void OnClientLogin(ref IPAddress where, ref string[] result, out string answer)
+        private void OnClientLogin(ref IPAddress where, ref string[] result, out string answer)
         {
             User client; answer = VerMessage.DEFAULT_RESPONSE;
             int idx = users.Find(result[1], out client);
@@ -242,11 +285,12 @@ namespace PublishServer
             // 加入连接列表
             Client login = new Client(where, client);
             onlineUsers.AddClient(login);
+            Invoke(new AddUserIntoToListView_dele(AddUserIntoView), new object[] {client.account, client.name });
             // 反馈消息
             answer = VerMessage.LOGIN_SUCCESS;
         }
 
-        public void OnClientReg(ref string[] result, out string answer)
+        private void OnClientReg(ref string[] result, out string answer)
         {
             User client; answer = VerMessage.DEFAULT_RESPONSE;
             int idx = users.Find(result[1], out client);
@@ -258,7 +302,7 @@ namespace PublishServer
             }
             // 正常注册流程
             int uid = users.GetNewUID();
-            User one = new User(uid, result[1], result[3], result[2]);
+            User one = new User(uid, result[1], result[2], result[3]);
             bool success = users.AddUser(one);
             if (success)
             {
@@ -269,7 +313,7 @@ namespace PublishServer
                 answer = VerMessage.REG_FAILED_OTHER_PROBLEM;
         }
 
-        public void OnClientLogoff(ref string[] result, out string answer)
+        private void OnClientLogoff(ref string[] result, out string answer)
         {
             User client; answer = VerMessage.DEFAULT_RESPONSE;
             int idx = users.Find(result[1], out client);
@@ -283,10 +327,27 @@ namespace PublishServer
             {
                 onlineUsers.RemoveClient(result[1]);
                 answer = VerMessage.LOGOFF_SUCCESS;
+                Invoke(new RemoveUserFromListView_dele(RemoveUserFromView), new object[] { client.account });
             }
             else answer = VerMessage.LOGOFF_FAILED_NOT_LOGIN;
         }
 
+        private void OnClientChange(ref string[] result, out string answer)
+        {
+            User client; answer = VerMessage.DEFAULT_RESPONSE;
+            int idx = users.Find(result[1], out client);
+            if (idx == -1)
+            {
+                answer = VerMessage.CHANGE_FAILED;
+                return;
+            }
+            User now = new User(client.userID, result[1], result[2], result[3]);
+            users.ReplaceTo(result[1], now);
+            SaveUsersData(rtUserPath);
+            Invoke(new RemoveUserFromListView_dele(RemoveUserFromView), new object[] { now.account });
+            Invoke(new AddUserIntoToListView_dele(AddUserIntoView), new object[] { now.account, now.name });
+            answer = VerMessage.CHANGE_SUCCESS;
+        }
 
         public void OnListenClient(object sender, EventArgs e)
         {
@@ -314,6 +375,9 @@ namespace PublishServer
                                 break;
                             case "Logoff":
                                 OnClientLogoff(ref result, out answer);
+                                break;
+                            case "Change":
+                                OnClientChange(ref result, out answer);
                                 break;
                             default: answer = VerMessage.DEFAULT_RESPONSE; break;
                         }
@@ -361,6 +425,7 @@ namespace PublishServer
             fileStream.Close();
             fileStream.Dispose();
         }
+
         /// <summary>
         /// 存储新的用户登录信息
         /// </summary>
@@ -399,9 +464,9 @@ namespace PublishServer
                 }
             }
             if (isClearAll)
-                SetWidthListViewBooks(60);
+                SetWidthListView_Books(60);
             else
-                SetWidthListViewBooks(-2);
+                SetWidthListView_Books(-2);
         }
 
         private void openExcelFileDialog_FileOk(object sender, CancelEventArgs e)
@@ -416,10 +481,7 @@ namespace PublishServer
             this.openExcelFileDialog.ShowDialog();
         }
 
-        private void saveExcelFileDialog_FileOk(object sender, CancelEventArgs e)
-        {
-
-        }
+        
 
         private void TryOpenExcel(string name)
         {
@@ -462,6 +524,11 @@ namespace PublishServer
             fip.Close();
         }
 
+        private void saveExcelFileDialog_FileOk(object sender, CancelEventArgs e)
+        {
+            // TODO
+        }
+
         private void listViewBooks_DoubleClick(object sender, EventArgs e)
         {
             int lineNumber = this.listView_Books.SelectedIndices[0];
@@ -501,7 +568,7 @@ namespace PublishServer
                 for (int i = 0; i < 12; i++) line.SubItems.Add("");
                 RefreshBookList(ref now, ref line);
                 if (listView_Books.Items.Count <= 1)
-                    SetWidthListViewBooks(-2);
+                    SetWidthListView_Books(-2);
             };
             item.ShowDialog();
         }
@@ -517,7 +584,8 @@ namespace PublishServer
                 line.SubItems[7 + i].Text = now.BookPrint._rawData_[i];
             }
         }
-        #region 添加右键菜单 前值准备部分
+
+        #region 添加右键菜单
         // The area occupied by the ListView header. 
         private System.Drawing.Rectangle _headerRect;
 
@@ -562,8 +630,6 @@ namespace PublishServer
             return false; // Stop the enum
         }
 
-        #endregion
-
         private void contextMenuStrip_BookList_Opening(object sender, CancelEventArgs e)
         {
             // This call indirectly calls EnumWindowCallBack which sets _headerRect
@@ -590,21 +656,69 @@ namespace PublishServer
             }
         }
 
+        private void tSMI_Add_Click(object sender, EventArgs e)
+        {
+            button_Add_Click(sender, e);
+        }
+
+        private void tSMI_Modify_Click(object sender, EventArgs e)
+        {
+            listViewBooks_DoubleClick(sender, e);
+        }
+
+        private void tSMI_Delete_Click(object sender, EventArgs e)
+        {
+            int lineNumber = this.listView_Books.SelectedIndices[0];
+            var line = this.listView_Books.Items[lineNumber];
+            string bid = line.SubItems[0].Text;
+            int id = int.Parse(bid);
+            BookDetail book;
+            if (!bList.tryFind(id, out book)) return;
+            bList.__list.Remove(book);
+            RefreshAllBookList();
+        }
+
+        private void tSMI_ClearAll_Click(object sender, EventArgs e)
+        {
+            bList.ClearAll();
+            ResetListView_Books();
+        }
+
+        
+
+        #endregion
+
+        private void tSMI_Sendto_Click(object sender, EventArgs e)
+        {
+            List<BookInformation> data = new List<BookInformation>();
+            for (int i = 0, sz = listView_Books.SelectedItems.Count; i < sz; i++)
+            {
+                string id = listView_Books.SelectedItems[i].SubItems[0].Text;
+                BookDetail tmp = new BookDetail();
+                bList.tryFind(int.Parse(id), out tmp);
+                data.Add(tmp.GetBookInfo());
+            }
+            Form_SendTo work = new Form_SendTo(data, onlineUsers);
+            work.ShowDialog();
+        }
         
 
         private void button_User_Click(object sender, EventArgs e)
         {
-            // TODO
-            // 找到用户并且调用
             User person;
             string uac = Registry.ReadKey4Registry("PublishServer", "CurrentUserAccount");
             users.Find(uac, out person);
             Form_User user = new Form_User(person);
             user.ReturnUser += (o, e1) =>
             {
-                User now = user.me;
+                if (!e1.CanUpdate) return;
+                User now = e1.Me;
                 users.ReplaceTo(uac, now);
                 SaveUsersData(rtUserPath);
+                ucl = now.name;
+                Registry.AddKey2Registry("PublishServer", "CurrentUserName", ucl);
+                this.Text = "教材补助经费评估软件 [" + ucl + "]" + " [#" + uid + "]";
+                this.label_AdminName.Text = ucl;
             };
             user.ShowDialog();
         }
@@ -659,7 +773,7 @@ namespace PublishServer
             about.ShowDialog();
         }
 
-        
+        #region 主界面按列排序组件
         private void listViewBooks_ColumnClick(object sender, ColumnClickEventArgs e)
         {
             if (listView_Books.Items.Count == 0) return;
@@ -693,41 +807,11 @@ namespace PublishServer
                 default: break;
             }
             ((System.Windows.Forms.ListView)sender).Sort();
-            SetWidthListViewBooks(-2);
+            SetWidthListView_Books(-2);
         }
-
-        private void tSMI_Add_Click(object sender, EventArgs e)
-        {
-            button_Add_Click(sender, e);
-        }
-
-        private void tSMI_Modify_Click(object sender, EventArgs e)
-        {
-            listViewBooks_DoubleClick(sender, e);
-        }
-
-        private void tSMI_Delete_Click(object sender, EventArgs e)
-        {
-            int lineNumber = this.listView_Books.SelectedIndices[0];
-            var line = this.listView_Books.Items[lineNumber];
-            string bid = line.SubItems[0].Text;
-            int id = int.Parse(bid);
-            BookDetail book;
-            if (!bList.tryFind(id, out book)) return;
-            bList.__list.Remove(book);
-            RefreshAllBookList();
-        }
-
-        private void tSMI_ClearAll_Click(object sender, EventArgs e)
-        {
-            bList.ClearAll();
-            ResetListViewBooks();
-        }
-
-        private void tSMI_Sendto_Click(object sender, EventArgs e)
-        {
-
-        }
+        #endregion
+        
+        
 
 
         

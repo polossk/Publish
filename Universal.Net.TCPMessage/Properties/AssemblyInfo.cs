@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Universal.Net.TCPMessage.dll")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Nano Ware")]
+[assembly: AssemblyCompany("AntropoidesVirgo.NanoWare")]
 [assembly: AssemblyProduct("Universal.Net.TCPMessage.dll")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]

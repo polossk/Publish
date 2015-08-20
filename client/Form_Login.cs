@@ -14,6 +14,7 @@ using System.Net;
 using System.Net.Sockets;
 using Universal.Global;
 using Universal.Net;
+using Universal.User;
 
 
 namespace PublishClient
@@ -57,14 +58,6 @@ namespace PublishClient
         /// <param name="e"></param>
         private void Form_Login_FormClosing(object sender, System.Windows.Forms.FormClosingEventArgs e)
         {
-            if (isLogin)
-            {
-                string uid = Registry.ReadKey4Registry("PublishClient", "CurrentUserID");
-                string uac = Registry.ReadKey4Registry("PublishClient", "CurrentUserAccount");
-                string ucl = Registry.ReadKey4Registry("PublishClient", "CurrentUserName");
-                string msg = "用户[#" + uid + "]" + uac + "登陆中...";
-                MessageBox.Show(msg, "欢迎[" + ucl + "]", MessageBoxButtons.OK);
-            }
             tcpClientLogin.Close();
             tcpListenerUser.Stop();
             if (this.textBox_UesrAccount.Text == null) return;
@@ -74,7 +67,6 @@ namespace PublishClient
 
         public void OnRecvData(object sender, EventArgs e)
         {
-            // TODO
             TcpClient tcpClient = sender as TcpClient;
             int threadID = Port.TCP_USER_FILE_PORT % 10000;
             using (NetworkStreamP buf = new NetworkStreamP(tcpClient.GetStream()))
@@ -165,9 +157,11 @@ namespace PublishClient
             {
                 string msg = "用户[" + uac + "]登录成功。正在初始化数据，请稍等。";
                 MessageBox.Show(msg, "登陆成功", MessageBoxButtons.OK);
+                Registry.AddKey2Registry("PublishClient", "CurrentUserPW", upw);
                 isLogin = true;
                 while (!isCatch) Thread.Sleep(100);
                 this.DialogResult = DialogResult.OK;
+                tcpClientLogin.Close();
                 this.Close();
             }
         }
@@ -209,7 +203,7 @@ namespace PublishClient
                 return;
             }
             upw = Cipher.md5Encrypt(upw);
-            string question = "Reg " + uac + " " + upw + " " + ucl;
+            string question = "Reg " + uac + " " + ucl + " " + upw;
             string ret;
             tcpClientLogin.Query(question, out ret);
             // 用户已经存在
