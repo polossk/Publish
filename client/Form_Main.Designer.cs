@@ -30,7 +30,7 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form_Main));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.listView1 = new System.Windows.Forms.ListView();
+            this.listView_Books = new System.Windows.Forms.ListView();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.label_ClientName = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
@@ -46,9 +46,10 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.groupBox1.Controls.Add(this.listView1);
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Controls.Add(this.listView_Books);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(619, 417);
@@ -56,21 +57,23 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "教材列表";
             // 
-            // listView1
+            // listView_Books
             // 
-            this.listView1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.listView1.FullRowSelect = true;
-            this.listView1.GridLines = true;
-            this.listView1.Location = new System.Drawing.Point(3, 17);
-            this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(613, 397);
-            this.listView1.TabIndex = 0;
-            this.listView1.UseCompatibleStateImageBehavior = false;
-            this.listView1.View = System.Windows.Forms.View.Details;
+            this.listView_Books.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.listView_Books.FullRowSelect = true;
+            this.listView_Books.GridLines = true;
+            this.listView_Books.Location = new System.Drawing.Point(3, 17);
+            this.listView_Books.Name = "listView_Books";
+            this.listView_Books.Size = new System.Drawing.Size(613, 397);
+            this.listView_Books.TabIndex = 0;
+            this.listView_Books.UseCompatibleStateImageBehavior = false;
+            this.listView_Books.View = System.Windows.Forms.View.Details;
+            this.listView_Books.DoubleClick += new System.EventHandler(this.listViewBooks_DoubleClick);
             // 
             // groupBox2
             // 
-            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox2.Controls.Add(this.label_ClientName);
             this.groupBox2.Controls.Add(this.pictureBox1);
             this.groupBox2.Controls.Add(this.button_About);
@@ -175,7 +178,7 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.GroupBox groupBox3;
-        private System.Windows.Forms.ListView listView1;
+        private System.Windows.Forms.ListView listView_Books;
         private System.Windows.Forms.Label label_ClientName;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Button button_About;

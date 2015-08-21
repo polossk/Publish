@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Universal.Data
 {
@@ -158,7 +160,14 @@ namespace Universal.Data
                 default: break;
             }
         }
-
+        public _BookInformation Clone()
+        {
+            MemoryStream stream = new MemoryStream();
+            BinaryFormatter formatter = new BinaryFormatter();
+            formatter.Serialize(stream, this);
+            stream.Position = 0;
+            return formatter.Deserialize(stream) as _BookInformation;
+        }
     }
 
     /// <summary> 教材基本信息 带BookID </summary>
@@ -179,14 +188,81 @@ namespace Universal.Data
         public BookInformation(int bid, _BookInformation info)
         {
             BookID = bid;
-            BookInfo = info;
+            BookInfo = info.Clone();
+        }
+        public BookInformation Clone()
+        {
+            MemoryStream stream = new MemoryStream();
+            BinaryFormatter formatter = new BinaryFormatter();
+            formatter.Serialize(stream, this);
+            stream.Position = 0;
+            return formatter.Deserialize(stream) as BookInformation;
+        }
+
+    }
+
+    public class BookInformationCompare : IEqualityComparer<BookInformation>
+    {
+        public bool Equals(BookInformation a, BookInformation b)
+        {
+            if (Object.ReferenceEquals(a, b))
+                return true;
+            if (Object.ReferenceEquals(a, null) || Object.ReferenceEquals(b, null))
+                return false;
+            return a.BookID == b.BookID;
+            /*  
+                a.BookInfo.Name == b.BookInfo.Name
+                && a.BookInfo.Author == b.BookInfo.Author
+                && a.BookInfo.PublishingCompany == b.BookInfo.PublishingCompany;
+            */
+        }
+
+        public int GetHashCode(BookInformation book)
+        {
+            if (Object.ReferenceEquals(book, null)) return 0;
+            return book.BookID.GetHashCode();
         }
     }
 
     [Serializable] public class BookInformationList
     {
         public List<BookInformation> Data { get; set; }
-        public BookInformationList() {}
+        public BookInformationList() { ClearAll(); }
+        public void ClearAll() { Data = new List<BookInformation>(); }
+        public void Add(BookInformation item) { Data.Add(item); }
+        public void ReplaceTo(int id, BookInformation item)
+        {
+            var result = from book in Data
+                         where book.BookID == id
+                         select book = item.Clone();
+        }
+
+        public bool isExist(int id)
+        {
+            if (Data.Count == 0) return false;
+            var result = from book in Data
+                         where book.BookID == id
+                         select book.BookID;
+            return result.Count() != 0;
+        }
+
+        public bool tryFind(int id, out BookInformation res)
+        {
+            if (Data.Count == 0) { res = null; return false; }
+            var result = from book in Data
+                         where book.BookID == id
+                         select book;
+            if (result.Count() == 0) { res = null; return false; }
+            res = result.First();
+            return true;
+        }
+        public void MergeWith(BookInformationList another)
+        {
+            var sub = this.Data.Except<BookInformation>(another.Data, new BookInformationCompare());
+            Data = new List<BookInformation>();
+            foreach (var item in another.Data) Add(item);
+            foreach (var item in sub) Add(item);
+        }
     }
 
 }

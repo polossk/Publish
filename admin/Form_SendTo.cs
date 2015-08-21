@@ -99,9 +99,9 @@ namespace PublishServer
         private void button_OK_Click(object sender, EventArgs e)
         {
             List<IPAddress> targets = new List<IPAddress>();
-            for (int i = 0, sz = listBox_Confirm.SelectedItems.Count; i < sz; i++)
+            for (int i = 0, sz = listBox_Confirm.Items.Count; i < sz; i++)
             {
-                string ucl = listBox_Confirm.SelectedItems[i].ToString();
+                string ucl = listBox_Confirm.Items[i].ToString();
                 targets.Add(players.__table[facebook[ucl]].clientIP);
             }
             Parallel.ForEach( targets, (item, state, i) =>

@@ -50,6 +50,9 @@
     <ApplicationIcon>PublishClient.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Office.Interop.Excel, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -74,6 +77,12 @@
     <Compile Include="Form_Connect.Designer.cs">
       <DependentUpon>Form_Connect.cs</DependentUpon>
     </Compile>
+    <Compile Include="Form_Item.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form_Item.Designer.cs">
+      <DependentUpon>Form_Item.cs</DependentUpon>
+    </Compile>
     <Compile Include="Form_Login.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -92,6 +101,7 @@
     <Compile Include="Form_User.Designer.cs">
       <DependentUpon>Form_User.cs</DependentUpon>
     </Compile>
+    <Compile Include="ListViewBooksSorter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="AboutBox.resx">
@@ -99,6 +109,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Form_Connect.resx">
       <DependentUpon>Form_Connect.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Form_Item.resx">
+      <DependentUpon>Form_Item.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Form_Login.resx">
       <DependentUpon>Form_Login.cs</DependentUpon>

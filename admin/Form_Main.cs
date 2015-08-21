@@ -109,7 +109,7 @@ namespace PublishServer
             tcpServerLogin = new TcpListenerP(new IPEndPoint(IPAddress.Any, Port.TCP_LOGIN_PORT));
             tcpServerLogin.OnThreadTaskRequest += new TcpListenerP.ThreadTaskRequest(OnListenClient);
             tcpServerBookEvau = new TcpListenerP(new IPEndPoint(IPAddress.Any, Port.TCP_SERVERRECV_PORT));
-
+            tcpServerBookEvau.OnThreadTaskRequest += new TcpListenerP.ThreadTaskRequest(OnListenBookEvau);
 
             // 所有 TCP 客户端使用前初始化
             // tcpClientUserFile = new TcpClientP();
@@ -217,6 +217,50 @@ namespace PublishServer
         }
 
         public void OnListen(object sender, EventArgs e)
+        {
+            // Template
+            TcpClient tcpClient = sender as TcpClient;
+            int threadID = 7777;
+            Console.WriteLine("On Listen...");
+            using (NetworkStreamP buf = new NetworkStreamP(tcpClient.GetStream()))
+            {
+                buf.ReceiveBufferSize = tcpClient.ReceiveBufferSize;
+                while (true)
+                {
+                    try
+                    {
+                        string q, a;
+                        buf.Read(out q);
+                        a = q.ToUpper();
+                        buf.Write(a);
+                        DateTime now = DateTime.Now;
+                        IPEndPoint where = tcpClient.Client.RemoteEndPoint as IPEndPoint;
+                        Console.WriteLine("{0} [host {1}]: receive message from [{2}:{3}]",
+                            now, threadID, where.Address.ToString(), where.Port.ToString());
+                        Console.WriteLine("{0} [host {1}]: receive message [{2}]",
+                            now, threadID, q);
+                    }
+                    catch (Exception ex)
+                    {
+                        Type type = ex.GetType();
+                        if (type == typeof(TimeoutException))
+                        {   // 超时异常，不中断连接
+                            Console.WriteLine("{0} [host {1}]: 数据超时失败！",
+                            DateTime.Now, threadID);
+                        }
+                        else
+                        {
+                            // 仍旧抛出异常，中断连接
+                            Console.WriteLine("{0} [host {1}]: 中断连接异常原因：{2}！",
+                            DateTime.Now, threadID, type.Name);
+                            throw ex;
+                        }
+                    }
+                }
+            }
+        }
+
+        public void OnListenBookEvau(object sender, EventArgs e)
         {
             // Template
             TcpClient tcpClient = sender as TcpClient;

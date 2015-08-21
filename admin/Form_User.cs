@@ -47,7 +47,7 @@ namespace PublishServer
             string uid = __UserID.ToString("D6");
             string uac = me.account;
             string ucl = me.name;
-            this.Text = "教材补助经费评估软件 [" + ucl + "]" + " [#" + uid + "]";
+            this.Text = "个人信息 [" + ucl + "]" + " [#" + uid + "]";
             this.label_UesrID.Text = uid;
             this.label_UserAC.Text = uac;
             this.textBox_UserCL.Text = ucl;
@@ -81,6 +81,11 @@ namespace PublishServer
             if (raw.Contains(' '))
             {
                 MessageBox.Show("任何字段不得包含空格与回车字符！", "输入错误", MessageBoxButtons.OK);
+                return false;
+            }
+            if (isPW && raw.Length < 4)
+            {
+                MessageBox.Show("密码不能短于4位！", "输入错误", MessageBoxButtons.OK);
                 return false;
             }
             return true;

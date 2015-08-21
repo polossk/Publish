@@ -25,12 +25,14 @@ namespace PublishServer
         
         public BookDetail book;
         public int __BookID;
+        bool isNewComer;
 
         public Form_Item(int bid = 1)
         {
             InitializeComponent();
             __BookID = bid;
             book = null;
+            isNewComer = true;
             OnDisplay();
         }
 
@@ -39,6 +41,7 @@ namespace PublishServer
             InitializeComponent();
             __BookID = reff.BookID;
             book = reff;
+            isNewComer = false;
             OnDisplay();
         }
 
@@ -48,7 +51,7 @@ namespace PublishServer
             this.Text = this.labelBookID.Text;
             this.button_Update.Enabled = false;
             this.button_OK.Enabled = false;
-            if (book == null)
+            if (isNewComer)
             {
                 this.Text = "*[新建] " + this.Text;
                 return;
@@ -181,8 +184,9 @@ namespace PublishServer
             }
             book.BookPrint.PaperUsing = (_BookPrinting.PaperFormat)this.comboBoxPaper.SelectedIndex;
             
-            
             book.BookPrint.IsColorful = this.radioButtonAye.Checked;
+
+            this.Text = "*[未更新到数据库] " + this.labelBookID.Text + book.BookInfo.Name;
 
             this.button_OK.Enabled = true;
             this.button_Update.Enabled = false;

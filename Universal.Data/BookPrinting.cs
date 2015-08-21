@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Universal.Data
 {
@@ -180,7 +182,14 @@ namespace Universal.Data
             }
             _rawData_[5] = IsColorful ? "是" : "否";
         }
-
+        public _BookPrinting Clone()
+        {
+            MemoryStream stream = new MemoryStream();
+            BinaryFormatter formatter = new BinaryFormatter();
+            formatter.Serialize(stream, this);
+            stream.Position = 0;
+            return formatter.Deserialize(stream) as _BookPrinting;
+        }
     }
 
     /// <summary> 教材印刷信息 带BookID </summary>
@@ -201,7 +210,16 @@ namespace Universal.Data
         public BookPrinting(int bid, _BookPrinting print)
         {
             BookID = bid;
-            BookPrint = print;
+            BookPrint = print.Clone();
+        }
+
+        public BookPrinting Clone()
+        {
+            MemoryStream stream = new MemoryStream();
+            BinaryFormatter formatter = new BinaryFormatter();
+            formatter.Serialize(stream, this);
+            stream.Position = 0;
+            return formatter.Deserialize(stream) as BookPrinting;
         }
     }
 }

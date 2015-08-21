@@ -152,17 +152,18 @@
             // 
             this.panelAttr.Controls.Add(this.radioButtonText);
             this.panelAttr.Controls.Add(this.radioButtonMono);
-            this.panelAttr.Location = new System.Drawing.Point(103, 159);
+            this.panelAttr.Location = new System.Drawing.Point(103, 153);
             this.panelAttr.Margin = new System.Windows.Forms.Padding(0);
             this.panelAttr.Name = "panelAttr";
-            this.panelAttr.Size = new System.Drawing.Size(196, 12);
+            this.panelAttr.Size = new System.Drawing.Size(196, 29);
             this.panelAttr.TabIndex = 11;
             // 
             // radioButtonText
             // 
+            this.radioButtonText.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.radioButtonText.AutoSize = true;
             this.radioButtonText.Checked = true;
-            this.radioButtonText.Location = new System.Drawing.Point(0, -3);
+            this.radioButtonText.Location = new System.Drawing.Point(0, 4);
             this.radioButtonText.Name = "radioButtonText";
             this.radioButtonText.Size = new System.Drawing.Size(47, 16);
             this.radioButtonText.TabIndex = 0;
@@ -173,8 +174,9 @@
             // 
             // radioButtonMono
             // 
+            this.radioButtonMono.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.radioButtonMono.AutoSize = true;
-            this.radioButtonMono.Location = new System.Drawing.Point(98, -2);
+            this.radioButtonMono.Location = new System.Drawing.Point(98, 4);
             this.radioButtonMono.Name = "radioButtonMono";
             this.radioButtonMono.Size = new System.Drawing.Size(47, 16);
             this.radioButtonMono.TabIndex = 1;
@@ -327,15 +329,16 @@
             // 
             this.panelBind.Controls.Add(this.radioButtonBindHard);
             this.panelBind.Controls.Add(this.radioButtonBindPaper);
-            this.panelBind.Location = new System.Drawing.Point(103, 53);
+            this.panelBind.Location = new System.Drawing.Point(103, 46);
             this.panelBind.Name = "panelBind";
-            this.panelBind.Size = new System.Drawing.Size(196, 12);
+            this.panelBind.Size = new System.Drawing.Size(196, 26);
             this.panelBind.TabIndex = 3;
             // 
             // radioButtonBindHard
             // 
+            this.radioButtonBindHard.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.radioButtonBindHard.AutoSize = true;
-            this.radioButtonBindHard.Location = new System.Drawing.Point(98, -2);
+            this.radioButtonBindHard.Location = new System.Drawing.Point(98, 5);
             this.radioButtonBindHard.Name = "radioButtonBindHard";
             this.radioButtonBindHard.Size = new System.Drawing.Size(47, 16);
             this.radioButtonBindHard.TabIndex = 1;
@@ -345,9 +348,10 @@
             // 
             // radioButtonBindPaper
             // 
+            this.radioButtonBindPaper.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.radioButtonBindPaper.AutoSize = true;
             this.radioButtonBindPaper.Checked = true;
-            this.radioButtonBindPaper.Location = new System.Drawing.Point(0, -2);
+            this.radioButtonBindPaper.Location = new System.Drawing.Point(0, 5);
             this.radioButtonBindPaper.Name = "radioButtonBindPaper";
             this.radioButtonBindPaper.Size = new System.Drawing.Size(47, 16);
             this.radioButtonBindPaper.TabIndex = 0;
@@ -360,15 +364,16 @@
             // 
             this.panelSize.Controls.Add(this.radioButtonSizeA5);
             this.panelSize.Controls.Add(this.radioButtonSizeA4);
-            this.panelSize.Location = new System.Drawing.Point(103, 80);
+            this.panelSize.Location = new System.Drawing.Point(103, 71);
             this.panelSize.Name = "panelSize";
-            this.panelSize.Size = new System.Drawing.Size(196, 12);
+            this.panelSize.Size = new System.Drawing.Size(196, 26);
             this.panelSize.TabIndex = 5;
             // 
             // radioButtonSizeA5
             // 
+            this.radioButtonSizeA5.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.radioButtonSizeA5.AutoSize = true;
-            this.radioButtonSizeA5.Location = new System.Drawing.Point(98, -2);
+            this.radioButtonSizeA5.Location = new System.Drawing.Point(98, 7);
             this.radioButtonSizeA5.Name = "radioButtonSizeA5";
             this.radioButtonSizeA5.Size = new System.Drawing.Size(71, 16);
             this.radioButtonSizeA5.TabIndex = 1;
@@ -378,9 +383,10 @@
             // 
             // radioButtonSizeA4
             // 
+            this.radioButtonSizeA4.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.radioButtonSizeA4.AutoSize = true;
             this.radioButtonSizeA4.Checked = true;
-            this.radioButtonSizeA4.Location = new System.Drawing.Point(0, -2);
+            this.radioButtonSizeA4.Location = new System.Drawing.Point(0, 7);
             this.radioButtonSizeA4.Name = "radioButtonSizeA4";
             this.radioButtonSizeA4.Size = new System.Drawing.Size(71, 16);
             this.radioButtonSizeA4.TabIndex = 0;
@@ -475,16 +481,17 @@
             // 
             this.panelColorful.Controls.Add(this.radioButtonNay);
             this.panelColorful.Controls.Add(this.radioButtonAye);
-            this.panelColorful.Location = new System.Drawing.Point(103, 156);
+            this.panelColorful.Location = new System.Drawing.Point(103, 151);
             this.panelColorful.Name = "panelColorful";
-            this.panelColorful.Size = new System.Drawing.Size(196, 15);
+            this.panelColorful.Size = new System.Drawing.Size(196, 31);
             this.panelColorful.TabIndex = 11;
             // 
             // radioButtonNay
             // 
+            this.radioButtonNay.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.radioButtonNay.AutoSize = true;
             this.radioButtonNay.Checked = true;
-            this.radioButtonNay.Location = new System.Drawing.Point(98, -2);
+            this.radioButtonNay.Location = new System.Drawing.Point(98, 6);
             this.radioButtonNay.Name = "radioButtonNay";
             this.radioButtonNay.Size = new System.Drawing.Size(35, 16);
             this.radioButtonNay.TabIndex = 1;
@@ -494,8 +501,9 @@
             // 
             // radioButtonAye
             // 
+            this.radioButtonAye.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.radioButtonAye.AutoSize = true;
-            this.radioButtonAye.Location = new System.Drawing.Point(0, -2);
+            this.radioButtonAye.Location = new System.Drawing.Point(0, 6);
             this.radioButtonAye.Name = "radioButtonAye";
             this.radioButtonAye.Size = new System.Drawing.Size(35, 16);
             this.radioButtonAye.TabIndex = 0;

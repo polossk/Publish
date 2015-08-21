@@ -111,5 +111,10 @@ namespace Universal.Global
                 }
             }
         }
+
+        public static int ModPositive(int dividend, int divisor)
+        {
+            return ((dividend % divisor) + divisor) % divisor;
+        }
     }
 }

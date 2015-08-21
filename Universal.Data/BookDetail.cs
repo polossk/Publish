@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Universal.Data
 {
@@ -31,8 +33,8 @@ namespace Universal.Data
         public BookDetail(int bid, _BookInformation info, _BookPrinting print)
         {
             BookID = bid;
-            BookInfo = info;
-            BookPrint = print;
+            BookInfo = info.Clone();
+            BookPrint = print.Clone();
         }
 
         public BookDetail(int bid, string[] rawData1, string[] rawData2)
@@ -51,6 +53,14 @@ namespace Universal.Data
         public BookPrinting GetBookPrint()
         {
             return new BookPrinting(BookID, BookPrint);
+        }
+        public BookDetail Clone()
+        {
+            MemoryStream stream = new MemoryStream();
+            BinaryFormatter formatter = new BinaryFormatter();
+            formatter.Serialize(stream, this);
+            stream.Position = 0;
+            return formatter.Deserialize(stream) as BookDetail;
         }
     }
 
@@ -101,19 +111,21 @@ namespace Universal.Data
         public void Add(int id, BookDetail item, bool isManual = false)
         {
             item.BookID = id;
-            __list.Add(item);
+            __list.Add(item.Clone());
             nextBookID += isManual ? 1 : 0;
         }
 
         public void ReplaceTo(int id, BookDetail item)
         {
+            if (__list.Count == 0) return;
             var result = from book in __list
                          where book.BookID == id
-                         select book = item;
+                         select book = item.Clone();
         }
 
         public bool isExist(int id)
         {
+            if (__list.Count == 0) return false;
             var result = from book in __list
                          where book.BookID == id
                          select book.BookID;
@@ -122,6 +134,7 @@ namespace Universal.Data
 
         public bool isExist(string bookname, string author, string press)
         {
+            if (__list.Count == 0) return false;
             var result = from book in __list
                          where book.BookInfo.Name == bookname
                          where book.BookInfo.Author == author
@@ -132,10 +145,11 @@ namespace Universal.Data
 
         public bool tryFind(int id, out BookDetail res)
         {
+            if (__list.Count == 0) { res = null; return false; }
             var result = from book in __list
                          where book.BookID == id
                          select book;
-            if (result == null) { res = null; return false; }
+            if (result.Count() == 0) { res = null; return false; }
             res = result.First();
             return true;
         }

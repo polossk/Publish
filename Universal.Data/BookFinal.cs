@@ -9,7 +9,7 @@ namespace Universal.Data
     [Serializable] public class BookFinal
     {
         public BookDetail MainInfo { get; set; }
-        public BookEvaulation MainValue { get; set; }
+        public BookEvaluaion MainValue { get; set; }
         public double Costing { get; set; }
         public double FinalValue { get; set; }
         /// <summary> 计算总成本 </summary>
@@ -81,7 +81,7 @@ namespace Universal.Data
         /// </summary>
         /// <param name="info">教材属性</param>
         /// <param name="value">教材评价</param>
-        public BookFinal(BookDetail info, BookEvaulation value)
+        public BookFinal(BookDetail info, BookEvaluaion value)
         {
             MainInfo = info;
             MainValue = value;
