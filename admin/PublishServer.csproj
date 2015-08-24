@@ -105,6 +105,12 @@
     <Compile Include="Form_ImportProgress.Designer.cs">
       <DependentUpon>Form_ImportProgress.cs</DependentUpon>
     </Compile>
+    <Compile Include="Form_Constant.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form_Constant.Designer.cs">
+      <DependentUpon>Form_Constant.cs</DependentUpon>
+    </Compile>
     <Compile Include="Form_Item.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -122,6 +128,12 @@
     </Compile>
     <Compile Include="Form_Login.Designer.cs">
       <DependentUpon>Form_Login.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Form_Result.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form_Result.Designer.cs">
+      <DependentUpon>Form_Result.cs</DependentUpon>
     </Compile>
     <Compile Include="Form_SendTo.cs">
       <SubType>Form</SubType>
@@ -145,6 +157,9 @@
     <EmbeddedResource Include="Form_ImportProgress.resx">
       <DependentUpon>Form_ImportProgress.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Form_Constant.resx">
+      <DependentUpon>Form_Constant.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Form_Item.resx">
       <DependentUpon>Form_Item.cs</DependentUpon>
     </EmbeddedResource>
@@ -153,6 +168,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Form_Main.resx">
       <DependentUpon>Form_Main.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Form_Result.resx">
+      <DependentUpon>Form_Result.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Form_SendTo.resx">
       <DependentUpon>Form_SendTo.cs</DependentUpon>

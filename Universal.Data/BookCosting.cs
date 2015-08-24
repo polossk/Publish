@@ -60,10 +60,10 @@ namespace Universal.Data
         /// <param name="manage">运行管理费</param>
         public BookCosting(
             double remuneration = 40.00,  double checking = 15.00, double proofreading = 5.00, 
-            double bindingandlayout = 3500, double composing = 15.00, double aplatemaking = 90.00,
+            double bindingandlayout = 3500.00, double composing = 15.00, double aplatemaking = 90.00,
             double cplatemaking = 90.00, double colorless = 15.00, double colorful = 30.00, double binding = 0.09,
             double w60costing = 200.00, double w70costing = 233.33, double w80costing = 266.67,
-            double w200cu = 900, double propagandizing = 3000, double manage = 8000
+            double w200cu = 900.00, double propagandizing = 3000.00, double manage = 8000.00
         )
         {
             Remuneration = remuneration;        Checking = checking;
@@ -75,5 +75,18 @@ namespace Universal.Data
             W80Costing = w80costing;            W200CuCosting = w200cu;
             Propagandizing = propagandizing;    Management = manage;
         }
+        public BookCosting(double[] _raw_data_set_)
+        {
+            Remuneration        = _raw_data_set_[00]; Checking              = _raw_data_set_[01];
+            Proofreading        = _raw_data_set_[02]; BindingAndLayout      = _raw_data_set_[03] * 10000;
+            Composing           = _raw_data_set_[04]; ArticlePlatemaking    = _raw_data_set_[05];
+            CoverPlatemaking    = _raw_data_set_[06]; Colorless             = _raw_data_set_[07];
+            Colorful            = _raw_data_set_[08]; Binding               = _raw_data_set_[09];
+            W60Costing          = _raw_data_set_[10]; W70Costing            = _raw_data_set_[11];
+            W80Costing          = _raw_data_set_[12]; W200CuCosting         = _raw_data_set_[13];
+            Propagandizing      = _raw_data_set_[14] * 10000;
+            Management          = _raw_data_set_[15] * 10000;
+        }
+
     }
 }

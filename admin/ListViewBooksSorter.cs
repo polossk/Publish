@@ -37,12 +37,12 @@ namespace PublishServer
             itemY = y as System.Windows.Forms.ListViewItem;
             string xText = itemX.SubItems[ColumnToSort].Text;
             string yText = itemY.SubItems[ColumnToSort].Text;
-            int xNum, yNum;
+            double xNum, yNum;
             switch (ColumnToSort)
             {
                 case 0: case 7:
-                    xNum = int.Parse(xText);
-                    yNum = int.Parse(yText);
+                    xNum = double.Parse(xText);
+                    yNum = double.Parse(yText);
                     cmpResult = xNum.CompareTo(yNum);
                     break;
                 case 10:

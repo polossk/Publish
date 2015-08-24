@@ -23,7 +23,10 @@ namespace PublishServer
     {
         public Dictionary<string, Client> __table { get; set; }
 
-        public ClientTable() { __table = new Dictionary<string, Client>(); }
+        public ClientTable()
+        {
+            __table = new Dictionary<string, Client>();
+        }
 
         public bool QueryClient(string uac, out Client c)
         {
@@ -38,11 +41,6 @@ namespace PublishServer
         public void RemoveClient(string uac)
         {
             __table.Remove(uac);
-        }
-
-        public void GetClientIPList(out List<KeyValuePair<string, Client>> tar)
-        {
-            tar = __table.ToList();
         }
     }
 }

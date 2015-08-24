@@ -31,15 +31,13 @@ namespace PublishServer
         /// <param name="e"></param>
         private void Form_Login_Load(object sender, EventArgs e)
         {
-            rtUserPath = System.AppDomain.CurrentDomain.SetupInformation.ApplicationBase
-                + "uesrs.bin";
+            rtUserPath = System.AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "uesrs.bin";
             FileInfo fi = new FileInfo(rtUserPath);
             if (fi.Exists)
                 loadUsersData(rtUserPath);
             else
             {
-                FileStream fs = fi.Create();
-                fs.Close();
+                FileStream fs = fi.Create(); fs.Close();
                 users = new UserSet();
                 saveUsersData(rtUserPath);
             }

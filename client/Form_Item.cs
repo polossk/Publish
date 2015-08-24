@@ -70,7 +70,7 @@ namespace PublishClient
             }
             else
             {
-                __EvalID = rank.EvauleID;
+                __EvalID = rank.EvalueID;
                 this.comboBox_Level.SelectedIndex = (int)rank.Value.Level;
                 this.comboBox_Apply.SelectedIndex = (int)rank.Value.Application;
                 this.comboBox_Service.SelectedIndex = (int)rank.Value.ServiceQuality;

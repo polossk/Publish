@@ -28,9 +28,17 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form_Main));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.listView_Books = new System.Windows.Forms.ListView();
+            this.contextMenuStrip_BookList = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.tSMI_Sendto = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.tSMI_Modify = new System.Windows.Forms.ToolStripMenuItem();
+            this.tSMI_Delete = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.tSMI_ClearAll = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.label_ClientName = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
@@ -39,6 +47,7 @@
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.groupBox1.SuspendLayout();
+            this.contextMenuStrip_BookList.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.groupBox3.SuspendLayout();
@@ -59,6 +68,7 @@
             // 
             // listView_Books
             // 
+            this.listView_Books.ContextMenuStrip = this.contextMenuStrip_BookList;
             this.listView_Books.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listView_Books.FullRowSelect = true;
             this.listView_Books.GridLines = true;
@@ -68,7 +78,60 @@
             this.listView_Books.TabIndex = 0;
             this.listView_Books.UseCompatibleStateImageBehavior = false;
             this.listView_Books.View = System.Windows.Forms.View.Details;
+            this.listView_Books.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.listViewBooks_ColumnClick);
             this.listView_Books.DoubleClick += new System.EventHandler(this.listViewBooks_DoubleClick);
+            // 
+            // contextMenuStrip_BookList
+            // 
+            this.contextMenuStrip_BookList.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tSMI_Sendto,
+            this.toolStripSeparator1,
+            this.tSMI_Modify,
+            this.tSMI_Delete,
+            this.toolStripSeparator2,
+            this.tSMI_ClearAll});
+            this.contextMenuStrip_BookList.Name = "contextMenuStrip_BookList";
+            this.contextMenuStrip_BookList.Size = new System.Drawing.Size(163, 126);
+            this.contextMenuStrip_BookList.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip_BookList_Opening);
+            // 
+            // tSMI_Sendto
+            // 
+            this.tSMI_Sendto.Name = "tSMI_Sendto";
+            this.tSMI_Sendto.Size = new System.Drawing.Size(162, 22);
+            this.tSMI_Sendto.Text = "发送(&S)";
+            this.tSMI_Sendto.Click += new System.EventHandler(this.tSMI_Sendto_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(159, 6);
+            // 
+            // tSMI_Modify
+            // 
+            this.tSMI_Modify.Name = "tSMI_Modify";
+            this.tSMI_Modify.Size = new System.Drawing.Size(162, 22);
+            this.tSMI_Modify.Text = "修改(&M)";
+            this.tSMI_Modify.Click += new System.EventHandler(this.tSMI_Modify_Click);
+            // 
+            // tSMI_Delete
+            // 
+            this.tSMI_Delete.Name = "tSMI_Delete";
+            this.tSMI_Delete.ShortcutKeys = System.Windows.Forms.Keys.Delete;
+            this.tSMI_Delete.Size = new System.Drawing.Size(162, 22);
+            this.tSMI_Delete.Text = "删除(&D)";
+            this.tSMI_Delete.Click += new System.EventHandler(this.tSMI_Delete_Click);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(159, 6);
+            // 
+            // tSMI_ClearAll
+            // 
+            this.tSMI_ClearAll.Name = "tSMI_ClearAll";
+            this.tSMI_ClearAll.Size = new System.Drawing.Size(162, 22);
+            this.tSMI_ClearAll.Text = "清空(&C)";
+            this.tSMI_ClearAll.Click += new System.EventHandler(this.tSMI_ClearAll_Click);
             // 
             // groupBox2
             // 
@@ -165,6 +228,7 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form_Main_FormClosing);
             this.Load += new System.EventHandler(this.Form_Main_Load);
             this.groupBox1.ResumeLayout(false);
+            this.contextMenuStrip_BookList.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
@@ -184,5 +248,12 @@
         private System.Windows.Forms.Button button_About;
         private System.Windows.Forms.Button button_User;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip_BookList;
+        private System.Windows.Forms.ToolStripMenuItem tSMI_Sendto;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripMenuItem tSMI_Modify;
+        private System.Windows.Forms.ToolStripMenuItem tSMI_Delete;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.ToolStripMenuItem tSMI_ClearAll;
     }
 }

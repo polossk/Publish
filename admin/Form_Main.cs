@@ -36,7 +36,8 @@ namespace PublishServer
         ClientTable onlineUsers;
 
         // 教材信息表
-        BookDetailList bList;
+        BookDetailList BookList;
+        BookEvaluaionList BookEval;
 
         // 网络客户端口
         UDPMessage      backgroundServer;       // 57777
@@ -46,12 +47,6 @@ namespace PublishServer
         TcpClientP      tcpClientSendMessage;   // 59999
         TcpListenerP    tcpServerBookEvau;      // 56688
 
-        // 网络相关线程列表
-        Thread udpThread;
-        Thread loginThread;
-        Thread recvThread;
-        Thread sendThread;
-        Thread mainRecvThread;
 
         // 列表排序记录
         int[] _Sort_Record = new int[16];
@@ -66,15 +61,13 @@ namespace PublishServer
             __tmp__ = new NotStatic();
             onlineUsers = new ClientTable();
             // 加载用户列表
-            rtUserPath = System.AppDomain.CurrentDomain.SetupInformation.ApplicationBase
-                + "uesrs.bin";
+            rtUserPath = System.AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "uesrs.bin";
             FileInfo fi = new FileInfo(rtUserPath);
             if (fi.Exists)
                 LoadUsersData(rtUserPath);
             else
             {
-                FileStream fs = fi.Create();
-                fs.Close();
+                FileStream fs = fi.Create(); fs.Close();
                 users = new UserSet();
                 SaveUsersData(rtUserPath);
             }
@@ -89,7 +82,7 @@ namespace PublishServer
 
             // 开始 UDP 广播
             backgroundServer = new UDPMessage();
-            udpThread = new Thread(
+            Thread udpThread = new Thread(
                 () => {
                     backgroundServer.OnBroadcast(
                         threadID: 9999,
@@ -108,14 +101,15 @@ namespace PublishServer
             // 所有 TCP 监听端口就绪
             tcpServerLogin = new TcpListenerP(new IPEndPoint(IPAddress.Any, Port.TCP_LOGIN_PORT));
             tcpServerLogin.OnThreadTaskRequest += new TcpListenerP.ThreadTaskRequest(OnListenClient);
-            tcpServerBookEvau = new TcpListenerP(new IPEndPoint(IPAddress.Any, Port.TCP_SERVERRECV_PORT));
+            tcpServerBookEvau = new TcpListenerP(new IPEndPoint(IPAddress.Any, Port.TCP_BOOK_EVALUATION_PORT));
             tcpServerBookEvau.OnThreadTaskRequest += new TcpListenerP.ThreadTaskRequest(OnListenBookEvau);
 
             // 所有 TCP 客户端使用前初始化
             // tcpClientUserFile = new TcpClientP();
 
             // 初始化教材列表
-            bList = new BookDetailList();
+            BookList = new BookDetailList();
+            BookEval = new BookEvaluaionList();
 
             // 初始化列表显示
             ResetListView_Books();
@@ -260,11 +254,17 @@ namespace PublishServer
             }
         }
 
+        private delegate void AddBookEvauList_dele(BookEvaluaionList val);
+
+        private void AddBookEvauList(BookEvaluaionList val)
+        {
+            BookEval.MergeByBUIDWith(val);
+        }
+
         public void OnListenBookEvau(object sender, EventArgs e)
         {
-            // Template
             TcpClient tcpClient = sender as TcpClient;
-            int threadID = 7777;
+            int threadID = Port.TCP_BOOK_EVALUATION_PORT % 10000;
             Console.WriteLine("On Listen...");
             using (NetworkStreamP buf = new NetworkStreamP(tcpClient.GetStream()))
             {
@@ -273,16 +273,11 @@ namespace PublishServer
                 {
                     try
                     {
-                        string q, a;
-                        buf.Read(out q);
-                        a = q.ToUpper();
-                        buf.Write(a);
-                        DateTime now = DateTime.Now;
-                        IPEndPoint where = tcpClient.Client.RemoteEndPoint as IPEndPoint;
-                        Console.WriteLine("{0} [host {1}]: receive message from [{2}:{3}]",
-                            now, threadID, where.Address.ToString(), where.Port.ToString());
-                        Console.WriteLine("{0} [host {1}]: receive message [{2}]",
-                            now, threadID, q);
+                        byte[] raw; buf.Read(out raw);
+                        MemoryStream ms = new MemoryStream(raw);
+                        BinaryFormatter bf = new BinaryFormatter();
+                        BookEvaluaionList another = bf.Deserialize(ms) as BookEvaluaionList;
+                        Invoke(new AddBookEvauList_dele(AddBookEvauList), new object[] { another });
                     }
                     catch (Exception ex)
                     {
@@ -494,7 +489,7 @@ namespace PublishServer
         private void RefreshAllBookList(bool isClearAll = false)
         {
             listView_Books.Items.Clear();
-            foreach (var item in bList.__list)
+            foreach (var item in BookList.Data)
             {
                 string bid = item.BookID.ToString();
                 ListViewItem tar = listView_Books.Items.Add(bid);
@@ -550,7 +545,7 @@ namespace PublishServer
                     Range cell = excel[idxRow, idxColumn];
                     raw1[idxColumn - 1] = cell.Value2;
                 }
-                if (bList.isExist(raw1[0], raw1[1], raw1[3])) continue;
+                if (BookList.isExist(raw1[0], raw1[1], raw1[3])) continue;
                 string[] raw2 = new string[6];
                 int word = (int)Math.Round(excel[idxRow, 7].Value2);
                 raw2[0] = word.ToString();
@@ -560,7 +555,7 @@ namespace PublishServer
                     raw2[idxColumn - 7] = (string)cell.Value2;
                 }
                 BookDetail item = new BookDetail(0, raw1, raw2);
-                bList.Add(bList.getNextBID(), item);
+                BookList.Add(BookList.getNextBID(), item);
                 // ProgressBar
                 fip.ChangeTo(idxRow - 1);
             }
@@ -568,9 +563,47 @@ namespace PublishServer
             fip.Close();
         }
 
+        #region 保存 Excel 文档组件
+        private static string[] __excel__header__ = new string[12]{
+            "教材名称", "作者", "作者职称",
+            "出版社", "教材类别", "教材属性",
+            "教材字数", "装订规格", "开本大小",
+            "册数", "正文用纸", "是否彩印"
+        };
+
+        private void TrySaveExcel(string name)
+        {
+            ExcelOperator excel = new ExcelOperator();
+            excel.CreateExcel();
+            int idxRow = 1, idxColumn = 1;
+            for (idxColumn = 1; idxColumn <= 12; idxColumn++ )
+            {
+                Range cell = excel[idxRow, idxColumn];
+                cell.Value2 = __excel__header__[idxColumn - 1];
+            }
+            idxRow++;
+            foreach (var item in BookList.Data)
+            {
+                for (idxColumn = 1; idxColumn <= 6; idxColumn++ )
+                {
+                    Range cell = excel[idxRow, idxColumn];
+                    cell.Value2 = item.BookInfo._rawData_[idxColumn - 1];
+                }
+                for (idxColumn = 7; idxColumn <= 12; idxColumn++)
+                {
+                    Range cell = excel[idxRow, idxColumn];
+                    cell.Value2 = item.BookPrint._rawData_[idxColumn - 7];
+                }
+                idxRow++;
+            }
+            excel.SaveExcel(name);
+            excel.QuitExcel();
+        }
+        #endregion
         private void saveExcelFileDialog_FileOk(object sender, CancelEventArgs e)
         {
-            // TODO
+            string path = this.saveExcelFileDialog.FileName;
+            TrySaveExcel(path);
         }
 
         private void listViewBooks_DoubleClick(object sender, EventArgs e)
@@ -580,7 +613,7 @@ namespace PublishServer
             string bid = line.SubItems[0].Text;
             int id = int.Parse(bid);
             BookDetail book;
-            if (!bList.tryFind(id, out book)) return;
+            if (!BookList.tryFind(id, out book)) return;
             Form_Item item = new Form_Item(book);
             item.ReturnBook += (o, e1) =>
             {
@@ -588,8 +621,8 @@ namespace PublishServer
                 tmp.BookInfo.buildRawData();
                 tmp.BookPrint.buildRawData();
                 // 填充到 BookList
-                bList.ReplaceTo(id, tmp);
-                BookDetail now; bList.tryFind(id, out now);
+                BookList.ReplaceTo(id, tmp);
+                BookDetail now; BookList.tryFind(id, out now);
                 // 重新整理内容到 ListView
                 RefreshBookList(ref now, ref line);
             };
@@ -598,7 +631,7 @@ namespace PublishServer
 
         private void button_Add_Click(object sender, EventArgs e)
         {
-            int cur = bList.nextBookID;
+            int cur = BookList.nextBookID;
             Form_Item item = new Form_Item(cur);
             item.ReturnBook += (o, e1) =>
             {
@@ -606,7 +639,7 @@ namespace PublishServer
                 now.BookInfo.buildRawData();
                 now.BookPrint.buildRawData();
                 // 填充到 BookList
-                bList.Add(cur, now, true);
+                BookList.Add(cur, now, true);
                 // 重新整理内容到 ListView
                 ListViewItem line = listView_Books.Items.Add(cur.ToString());
                 for (int i = 0; i < 12; i++) line.SubItems.Add("");
@@ -717,20 +750,15 @@ namespace PublishServer
             string bid = line.SubItems[0].Text;
             int id = int.Parse(bid);
             BookDetail book;
-            if (!bList.tryFind(id, out book)) return;
-            bList.__list.Remove(book);
+            if (!BookList.tryFind(id, out book)) return;
+            BookList.Data.Remove(book);
             RefreshAllBookList();
         }
 
         private void tSMI_ClearAll_Click(object sender, EventArgs e)
         {
-            bList.ClearAll();
-            ResetListView_Books();
+            button_ClearAll_Click(sender, e);
         }
-
-        
-
-        #endregion
 
         private void tSMI_Sendto_Click(object sender, EventArgs e)
         {
@@ -739,13 +767,15 @@ namespace PublishServer
             {
                 string id = listView_Books.SelectedItems[i].SubItems[0].Text;
                 BookDetail tmp = new BookDetail();
-                bList.tryFind(int.Parse(id), out tmp);
+                BookList.tryFind(int.Parse(id), out tmp);
                 data.Add(tmp.GetBookInfo());
             }
             Form_SendTo work = new Form_SendTo(data, onlineUsers);
             work.ShowDialog();
         }
-        
+
+        #endregion
+
 
         private void button_User_Click(object sender, EventArgs e)
         {
@@ -772,7 +802,7 @@ namespace PublishServer
             string path = this.saveDataFileDialog.FileName;
             FileStream fileStream = new FileStream(path, FileMode.Create);
             byte[] serBytes;
-            ToBytes<BookDetailList>.GetBytes(ref bList, out serBytes);
+            ToBytes<BookDetailList>.GetBytes(ref BookList, out serBytes);
             fileStream.Write(serBytes, 0, serBytes.Length);
             fileStream.Flush();
             fileStream.Close();
@@ -801,7 +831,7 @@ namespace PublishServer
             fileStream.Close();
             fileStream.Dispose();
             // 合并数据表
-            bList.MergeWith(another);
+            BookList.MergeWith(another);
             RefreshAllBookList();
         }
 
@@ -854,10 +884,29 @@ namespace PublishServer
             SetWidthListView_Books(-2);
         }
         #endregion
-        
-        
 
+        private void button_ClearAll_Click(object sender, EventArgs e)
+        {
+            BookList.ClearAll();
+            ResetListView_Books();
+        }
 
-        
+        private void button_Exit_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void button_CheckValue_Click(object sender, EventArgs e)
+        {
+            Form_Result result = new Form_Result(users, BookList, BookEval);
+            result.ShowDialog();
+        }
+
+        private void button_Export_Click(object sender, EventArgs e)
+        {
+            this.saveExcelFileDialog.InitialDirectory = Directory.GetCurrentDirectory();
+            this.saveExcelFileDialog.FileName = "";
+            this.saveExcelFileDialog.ShowDialog();
+        }
     }
 }

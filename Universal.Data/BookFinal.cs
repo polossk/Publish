@@ -14,7 +14,7 @@ namespace Universal.Data
         public double FinalValue { get; set; }
         /// <summary> 计算总成本 </summary>
         /// <param name="r">成本单价</param>
-        public void setCosting(ref BookCosting r)
+        private void setCosting(ref BookCosting r)
         {
             int dBookCount = (int)MainInfo.BookPrint.BookCount;             // 册数
             int dBookPrint = MainValue.Value.PrintingCount;                 // 印数
@@ -49,12 +49,12 @@ namespace Universal.Data
             Costing = fConstCosting + fWordsCosting + fCompsCosting + fPlateCosting + fPrintCosting + fCoverCosting;
         }
 
-        private static double[] scoreA1 = { 1.00, 0.58, 0.42 };
-        private static double[] scoreA2 = { 0.00, 0.52, 1.00 };
-        private static double[] scoreB0 = { 0.00, 0.22, 0.36 };
+        private static double[] scoreA1 = { 0.42, 0.58, 1.00 };
+        private static double[] scoreA2 = { 1.00, 0.52, 0.00 };
+        private static double[] scoreB0 = { 0.36, 0.22, 0.00 };
 
         /// <summary> 计算最后资助价格 </summary>
-        public void setFinalValue()
+        private void setFinalValue()
         {
             double coefA1 = scoreA1[(int)MainValue.Value.Level];
             double coefA2 = scoreA2[(int)MainValue.Value.ServiceQuality];

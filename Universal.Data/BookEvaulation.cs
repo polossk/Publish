@@ -73,7 +73,7 @@ namespace Universal.Data
     [Serializable] public class BookEvaluaion
     {
         /// <summary> 评价编号 </summary>
-        public int EvauleID { get; set; }
+        public int EvalueID { get; set; }
         /// <summary> 教材编号 </summary>
         public int BookID { get; set; }
         /// <summary> 评委编号 </summary>
@@ -91,7 +91,7 @@ namespace Universal.Data
         /// <param name="value">评价详情</param>
         public BookEvaluaion(int eid, int bid, int uid, _Evaluaion value)
         {
-            EvauleID = eid;
+            EvalueID = eid;
             BookID = bid;
             UserID = uid;
             Value = value;
@@ -106,7 +106,7 @@ namespace Universal.Data
         }
     }
 
-    public class BookEvaluaionCompare : IEqualityComparer<BookEvaluaion>
+    public class BookEvaluaionCompareByBID : IEqualityComparer<BookEvaluaion>
     {
         public bool Equals(BookEvaluaion a, BookEvaluaion b)
         {
@@ -128,6 +128,30 @@ namespace Universal.Data
             return book.BookID.GetHashCode();
         }
     }
+
+    public class BookEvaluaionCompareByBUID : IEqualityComparer<BookEvaluaion>
+    {
+        public bool Equals(BookEvaluaion a, BookEvaluaion b)
+        {
+            if (Object.ReferenceEquals(a, b))
+                return true;
+            if (Object.ReferenceEquals(a, null) || Object.ReferenceEquals(b, null))
+                return false;
+            return a.BookID == b.BookID && a.UserID == b.UserID;
+            /*  
+                a.BookInfo.Name == b.BookInfo.Name
+                && a.BookInfo.Author == b.BookInfo.Author
+                && a.BookInfo.PublishingCompany == b.BookInfo.PublishingCompany;
+            */
+        }
+
+        public int GetHashCode(BookEvaluaion book)
+        {
+            if (Object.ReferenceEquals(book, null)) return 0;
+            return book.BookID.GetHashCode() ^ book.UserID.GetHashCode();
+        }
+    }
+
     [Serializable] public class BookEvaluaionList
     {
         public List<BookEvaluaion> Data { get; set; }
@@ -160,11 +184,19 @@ namespace Universal.Data
             res = result.First();
             return true;
         }
-        public void MergeWith(BookEvaluaionList another)
+        public void MergeByBIDWith(BookEvaluaionList another)
         {
-            var sub = another.Data.Except<BookEvaluaion>(Data, new BookEvaluaionCompare());
+            var sub = another.Data.Except<BookEvaluaion>(Data, new BookEvaluaionCompareByBID());
             foreach (var item in sub)
                 Add(item);
+        }
+
+        public void MergeByBUIDWith(BookEvaluaionList another)
+        {
+            var sub = this.Data.Except<BookEvaluaion>(another.Data, new BookEvaluaionCompareByBUID());
+            this.Data = new List<BookEvaluaion>();
+            foreach (var item in another.Data) this.Add(item);
+            foreach (var item in sub) this.Add(item);
         }
     }
 }

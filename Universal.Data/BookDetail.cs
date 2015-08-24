@@ -93,40 +93,40 @@ namespace Universal.Data
 
     [Serializable] public class BookDetailList
     {
-        public List<BookDetail> __list { get; set; }
+        public List<BookDetail> Data { get; set; }
         public int nextBookID { get; set; }
         public BookDetailList()
         {
-            __list = new List<BookDetail>();
+            Data = new List<BookDetail>();
             nextBookID = 1;
         }
         public int getNextBID() { return nextBookID++; }
 
         public void ClearAll()
         {
-            __list = new List<BookDetail>();
+            Data = new List<BookDetail>();
             nextBookID = 1;
         }
 
         public void Add(int id, BookDetail item, bool isManual = false)
         {
             item.BookID = id;
-            __list.Add(item.Clone());
+            Data.Add(item.Clone());
             nextBookID += isManual ? 1 : 0;
         }
 
         public void ReplaceTo(int id, BookDetail item)
         {
-            if (__list.Count == 0) return;
-            var result = from book in __list
+            if (Data.Count == 0) return;
+            var result = from book in Data
                          where book.BookID == id
                          select book = item.Clone();
         }
 
         public bool isExist(int id)
         {
-            if (__list.Count == 0) return false;
-            var result = from book in __list
+            if (Data.Count == 0) return false;
+            var result = from book in Data
                          where book.BookID == id
                          select book.BookID;
             return result.Count() != 0;
@@ -134,8 +134,8 @@ namespace Universal.Data
 
         public bool isExist(string bookname, string author, string press)
         {
-            if (__list.Count == 0) return false;
-            var result = from book in __list
+            if (Data.Count == 0) return false;
+            var result = from book in Data
                          where book.BookInfo.Name == bookname
                          where book.BookInfo.Author == author
                          where book.BookInfo.PublishingCompany == press
@@ -145,8 +145,8 @@ namespace Universal.Data
 
         public bool tryFind(int id, out BookDetail res)
         {
-            if (__list.Count == 0) { res = null; return false; }
-            var result = from book in __list
+            if (Data.Count == 0) { res = null; return false; }
+            var result = from book in Data
                          where book.BookID == id
                          select book;
             if (result.Count() == 0) { res = null; return false; }
@@ -156,7 +156,7 @@ namespace Universal.Data
 
         public void MergeWith(BookDetailList another)
         {
-            var sub = another.__list.Except<BookDetail>(__list, new BookDetailCompare());
+            var sub = another.Data.Except<BookDetail>(Data, new BookDetailCompare());
             foreach (var item in sub)
                 Add(getNextBID(), item);
         }

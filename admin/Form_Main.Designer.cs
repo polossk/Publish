@@ -33,11 +33,14 @@
             this.openExcelFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveExcelFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.button_CheckValue = new System.Windows.Forms.Button();
+            this.button_Exit = new System.Windows.Forms.Button();
             this.button_Add = new System.Windows.Forms.Button();
             this.button_Import = new System.Windows.Forms.Button();
-            this.button_BookListSave = new System.Windows.Forms.Button();
             this.button_BookListLoad = new System.Windows.Forms.Button();
+            this.button_BookListSave = new System.Windows.Forms.Button();
             this.button_Export = new System.Windows.Forms.Button();
+            this.button_ClearAll = new System.Windows.Forms.Button();
             this.listView_Books = new System.Windows.Forms.ListView();
             this.contextMenuStrip_BookList = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tSMI_Sendto = new System.Windows.Forms.ToolStripMenuItem();
@@ -75,6 +78,8 @@
             // 
             // saveExcelFileDialog
             // 
+            this.saveExcelFileDialog.DefaultExt = "xlsx";
+            this.saveExcelFileDialog.Filter = "Excel文件|*.xls;*.xlsx|所有文件|*.*";
             this.saveExcelFileDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.saveExcelFileDialog_FileOk);
             // 
             // tableLayoutPanel1
@@ -85,11 +90,14 @@
             this.tableLayoutPanel1.ColumnCount = 2;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanel1.Controls.Add(this.button_CheckValue, 0, 3);
+            this.tableLayoutPanel1.Controls.Add(this.button_BookListSave, 1, 2);
+            this.tableLayoutPanel1.Controls.Add(this.button_Exit, 0, 3);
             this.tableLayoutPanel1.Controls.Add(this.button_Add, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.button_Import, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.button_BookListSave, 1, 0);
+            this.tableLayoutPanel1.Controls.Add(this.button_Export, 0, 2);
+            this.tableLayoutPanel1.Controls.Add(this.button_ClearAll, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.button_BookListLoad, 1, 1);
-            this.tableLayoutPanel1.Controls.Add(this.button_Export, 0, 3);
             this.tableLayoutPanel1.Location = new System.Drawing.Point(6, 18);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 4;
@@ -105,6 +113,30 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel1.Size = new System.Drawing.Size(283, 151);
             this.tableLayoutPanel1.TabIndex = 0;
+            // 
+            // button_CheckValue
+            // 
+            this.button_CheckValue.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
+            this.button_CheckValue.Location = new System.Drawing.Point(31, 116);
+            this.button_CheckValue.Margin = new System.Windows.Forms.Padding(5);
+            this.button_CheckValue.Name = "button_CheckValue";
+            this.button_CheckValue.Size = new System.Drawing.Size(79, 30);
+            this.button_CheckValue.TabIndex = 7;
+            this.button_CheckValue.Text = "检查评价(&V)";
+            this.button_CheckValue.UseVisualStyleBackColor = true;
+            this.button_CheckValue.Click += new System.EventHandler(this.button_CheckValue_Click);
+            // 
+            // button_Exit
+            // 
+            this.button_Exit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
+            this.button_Exit.Location = new System.Drawing.Point(172, 116);
+            this.button_Exit.Margin = new System.Windows.Forms.Padding(5);
+            this.button_Exit.Name = "button_Exit";
+            this.button_Exit.Size = new System.Drawing.Size(79, 30);
+            this.button_Exit.TabIndex = 6;
+            this.button_Exit.Text = "关闭窗口(&X)";
+            this.button_Exit.UseVisualStyleBackColor = true;
+            this.button_Exit.Click += new System.EventHandler(this.button_Exit_Click);
             // 
             // button_Add
             // 
@@ -130,18 +162,6 @@
             this.button_Import.UseVisualStyleBackColor = true;
             this.button_Import.Click += new System.EventHandler(this.buttonOpenExcelFile_Click);
             // 
-            // button_BookListSave
-            // 
-            this.button_BookListSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
-            this.button_BookListSave.Location = new System.Drawing.Point(172, 5);
-            this.button_BookListSave.Margin = new System.Windows.Forms.Padding(5);
-            this.button_BookListSave.Name = "button_BookListSave";
-            this.button_BookListSave.Size = new System.Drawing.Size(79, 27);
-            this.button_BookListSave.TabIndex = 2;
-            this.button_BookListSave.Text = "保存数据(&S)";
-            this.button_BookListSave.UseVisualStyleBackColor = true;
-            this.button_BookListSave.Click += new System.EventHandler(this.button_BookListSave_Click);
-            // 
             // button_BookListLoad
             // 
             this.button_BookListLoad.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
@@ -154,16 +174,41 @@
             this.button_BookListLoad.UseVisualStyleBackColor = true;
             this.button_BookListLoad.Click += new System.EventHandler(this.button_BookListLoad_Click);
             // 
+            // button_BookListSave
+            // 
+            this.button_BookListSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
+            this.button_BookListSave.Location = new System.Drawing.Point(172, 79);
+            this.button_BookListSave.Margin = new System.Windows.Forms.Padding(5);
+            this.button_BookListSave.Name = "button_BookListSave";
+            this.button_BookListSave.Size = new System.Drawing.Size(79, 27);
+            this.button_BookListSave.TabIndex = 2;
+            this.button_BookListSave.Text = "保存数据(&S)";
+            this.button_BookListSave.UseVisualStyleBackColor = true;
+            this.button_BookListSave.Click += new System.EventHandler(this.button_BookListSave_Click);
+            // 
             // button_Export
             // 
             this.button_Export.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
-            this.button_Export.Location = new System.Drawing.Point(31, 116);
+            this.button_Export.Location = new System.Drawing.Point(31, 79);
             this.button_Export.Margin = new System.Windows.Forms.Padding(5);
             this.button_Export.Name = "button_Export";
-            this.button_Export.Size = new System.Drawing.Size(79, 30);
+            this.button_Export.Size = new System.Drawing.Size(79, 27);
             this.button_Export.TabIndex = 4;
-            this.button_Export.Text = "导出结果(&E)";
+            this.button_Export.Text = "导出数据(&E)";
             this.button_Export.UseVisualStyleBackColor = true;
+            this.button_Export.Click += new System.EventHandler(this.button_Export_Click);
+            // 
+            // button_ClearAll
+            // 
+            this.button_ClearAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
+            this.button_ClearAll.Location = new System.Drawing.Point(172, 5);
+            this.button_ClearAll.Margin = new System.Windows.Forms.Padding(5);
+            this.button_ClearAll.Name = "button_ClearAll";
+            this.button_ClearAll.Size = new System.Drawing.Size(79, 27);
+            this.button_ClearAll.TabIndex = 5;
+            this.button_ClearAll.Text = "清空条目(&C)";
+            this.button_ClearAll.UseVisualStyleBackColor = true;
+            this.button_ClearAll.Click += new System.EventHandler(this.button_ClearAll_Click);
             // 
             // listView_Books
             // 
@@ -423,5 +468,8 @@
         private System.Windows.Forms.Button button_About;
         private System.Windows.Forms.ToolStripMenuItem tSMI_Sendto;
         private System.Windows.Forms.ToolStripMenuItem tSMI_Add;
+        private System.Windows.Forms.Button button_ClearAll;
+        private System.Windows.Forms.Button button_CheckValue;
+        private System.Windows.Forms.Button button_Exit;
     }
 }

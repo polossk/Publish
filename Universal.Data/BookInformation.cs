@@ -259,9 +259,9 @@ namespace Universal.Data
         public void MergeWith(BookInformationList another)
         {
             var sub = this.Data.Except<BookInformation>(another.Data, new BookInformationCompare());
-            Data = new List<BookInformation>();
-            foreach (var item in another.Data) Add(item);
-            foreach (var item in sub) Add(item);
+            this.Data = new List<BookInformation>();
+            foreach (var item in another.Data) this.Add(item);
+            foreach (var item in sub) this.Add(item);
         }
     }
 
