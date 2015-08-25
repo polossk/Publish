@@ -12,7 +12,7 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <IsWebBootstrapper>true</IsWebBootstrapper>
-    <PublishUrl>ftp://10.21.48.40/NanoWare/</PublishUrl>
+    <PublishUrl>G:\VirtualHome\NanoWare\PublishServer\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Web</InstallFrom>
     <UpdateEnabled>true</UpdateEnabled>
@@ -22,19 +22,20 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <InstallUrl>http://localhost/</InstallUrl>
+    <InstallUrl>http://publish.polossk.com/PublishServer/</InstallUrl>
+    <SupportUrl>https://github.com/CompanyShen/Publish/</SupportUrl>
+    <ErrorReportUrl>https://github.com/CompanyShen/Publish/</ErrorReportUrl>
     <ProductName>PublishServer</ProductName>
     <PublisherName>Antropoides-Virgo</PublisherName>
     <SuiteName>PublishServer</SuiteName>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
-    <ApplicationRevision>7175</ApplicationRevision>
-    <ApplicationVersion>0.5.10.%2a</ApplicationVersion>
+    <ApplicationRevision>8266</ApplicationRevision>
+    <ApplicationVersion>0.9.23.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <BootstrapperComponentsLocation>Relative</BootstrapperComponentsLocation>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -203,6 +204,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Aero WinFlip 3D.ico" />
     <Content Include="Publish.ico" />
     <Content Include="PublishServer.ico" />
     <None Include="Resources\polossk.Image.bmp" />
@@ -245,6 +247,14 @@
       <Project>{9baf830f-ef65-4cc6-88a5-1cbfecae6774}</Project>
       <Name>Universal.User</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <FileAssociation Include=".bdl">
+      <Visible>False</Visible>
+      <Description>教材信息数据文件</Description>
+      <Progid>0</Progid>
+      <DefaultIcon>Aero WinFlip 3D.ico</DefaultIcon>
+    </FileAssociation>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
