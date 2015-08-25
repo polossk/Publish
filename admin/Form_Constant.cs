@@ -41,6 +41,7 @@ namespace PublishServer
                 SaveConstData(AppPath);
             }
             OnDisplay();
+            BuildCollection();
         }
 
         private void BuildCollection()
@@ -144,6 +145,7 @@ namespace PublishServer
             Value = now;
             SaveConstData(AppPath);
             OnDisplay();
+            this.Text = "印刷成本";
         }
 
         private void buttonCancel_Click(object sender, EventArgs e)

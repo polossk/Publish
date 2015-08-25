@@ -182,7 +182,12 @@ namespace PublishServer
             Form_Constant window = new Form_Constant();
             window.ShowDialog();
             if (window.DialogResult == System.Windows.Forms.DialogResult.OK)
+            {
                 LoadConstData(AppPath);
+                BuildFinalList();
+                OnDisplay();
+            }
+
         }
 
         private void button_Exit_Click(object sender, EventArgs e)
